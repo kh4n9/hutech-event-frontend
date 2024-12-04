@@ -1,0 +1,10 @@
+#capture-area {
+  position: relative;
+  width: 3371px;
+  height: 2420px;
+  background-image: url("../../../../../assets/images/sample.png");
+  background-size: cover;
+  background-position: center 20px;
+  background-repeat: no-repeat;
+  overflow: hidden; /* Đảm bảo không bị tràn nội dung */
+}
