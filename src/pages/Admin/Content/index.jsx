@@ -13,7 +13,7 @@ import User from "./User";
 // eslint-disable-next-line react/prop-types
 const Content = ({ content }) => {
   return (
-    <div>
+    <div className="m-2 min-w-fit grow rounded bg-slate-100 shadow-lg">
       {!content && <User />}
       {content === "user" && <User />}
       {content === "setting" && <Setting />}
