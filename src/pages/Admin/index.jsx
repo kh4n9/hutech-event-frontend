@@ -5,7 +5,7 @@ import Sidebar from "./Sidebar";
 // eslint-disable-next-line react/prop-types
 const Admin = ({ content }) => {
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-slate-200">
       <Header />
       <div className="flex flex-grow">
         <Sidebar />

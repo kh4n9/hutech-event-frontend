@@ -3,9 +3,9 @@ import hutechLogo from "../../../assets/images/hutech-logo.png";
 
 const Header = () => {
   return (
-    <div className="flex items-center justify-between rounded-xl bg-slate-100 px-4 py-2 shadow-xl">
+    <div className="m-2 flex items-center justify-between rounded-xl bg-slate-100 px-4 py-2 shadow-xl">
       <Link to="/admin" className="flex items-center justify-center">
-        <img src={hutechLogo} alt="HUTECH Logo" className="w-12" />
+        <img src={hutechLogo} alt="HUTECH Logo" className="w-10" />
         <h1 className="ml-2 text-2xl font-bold">Hutech Event</h1>
       </Link>
 
