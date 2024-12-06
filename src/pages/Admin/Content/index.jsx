@@ -1,5 +1,6 @@
 import CerLayout from "./CerLayout";
 import Certificate from "./Certificate";
+import DetailEvent from "./DetailEvent";
 import Event from "./Event";
 import Monitor from "./Monitor";
 import ReportClass from "./ReportClass";
@@ -13,13 +14,14 @@ import User from "./User";
 // eslint-disable-next-line react/prop-types
 const Content = ({ content }) => {
   return (
-    <div className="m-2 min-w-fit grow rounded-xl bg-slate-100 p-4 shadow-lg">
+    <div className="m-2 grow rounded-xl bg-slate-100 p-4 shadow-lg">
       {!content && <User />}
       {content === "user" && <User />}
       {content === "setting" && <Setting />}
       {content === "cer-layout" && <CerLayout />}
       {content === "topic" && <Topic />}
       {content === "event" && <Event />}
+      {content === "event-detail" && <DetailEvent />}
       {content === "student" && <Student />}
       {content === "monitor" && <Monitor />}
       {content === "certificate" && <Certificate />}
