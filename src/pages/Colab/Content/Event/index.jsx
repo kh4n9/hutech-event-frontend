@@ -339,7 +339,7 @@ const Event = () => {
                     </svg>
                   </button>
                   <button className="ml-2 rounded-md bg-green-500 p-1 text-white hover:bg-green-700">
-                    <Link to={`/admin/event/${item.id}`}>
+                    <Link to={`/colab/event/${item.id}`}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
