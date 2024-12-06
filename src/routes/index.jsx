@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "../pages/Home";
 import Admin from "../pages/Admin";
 import Login from "../pages/Login";
+import Colab from "../pages/Colab";
 
 const AppRoutes = () => {
   return (
@@ -43,6 +44,31 @@ const AppRoutes = () => {
         <Route
           path="/admin/report-class"
           element={<Admin content="report-class" />}
+        />
+        {/* Colab */}
+        <Route path="/colab" element={<Colab />} />
+        <Route path="/colab/event" element={<Colab content="event" />} />
+        <Route
+          path="/colab/event/:id"
+          element={<Colab content="event-detail" />}
+        />
+        <Route path="/colab/student" element={<Colab content="student" />} />
+        <Route path="/colab/monitor" element={<Colab content="monitor" />} />
+        <Route
+          path="/colab/certificate"
+          element={<Colab content="certificate" />}
+        />
+        <Route
+          path="/colab/report-student"
+          element={<Colab content="report-student" />}
+        />
+        <Route
+          path="/colab/report-motitor"
+          element={<Colab content="report-motitor" />}
+        />
+        <Route
+          path="/colab/report-class"
+          element={<Colab content="report-class" />}
         />
         {/* Đăng nhập */}
         <Route path="/login" element={<Login />} />
