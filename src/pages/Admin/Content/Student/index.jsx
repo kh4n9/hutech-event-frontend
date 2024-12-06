@@ -1,3 +1,4 @@
+//Đây là trang Student
 import { useEffect, useState } from "react";
 import AddStudent from "./AddStudent";
 import DeleteStudent from "./DeleteStudent";
@@ -5,34 +6,14 @@ import EditStudent from "./EditStudent";
 
 const Student = () => {
     const data = [
-        { id: 1, studentCode: "2180601133", studentFullname: "Nguyễn Thành Phú", studentClass: "21DTHB2",isMonitor: true, studentEmail: "nt.phu268@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 2, studentCode: "2180601133", studentFullname: "Nguyễn Minh Khang", studentClass: "21DTHB2",isMonitor: false, studentEmail: "mkhoangvip@gmail.com", studentPhone: "123456789", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648"},
-        { id: 3, studentCode: "2180601133", studentFullname: "Phạm Danh Tuấn", studentClass: "21DTHB2",isMonitor: true, studentEmail: "phamdanhtuan@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 4, studentCode: "2180601133", studentFullname: "Nguyễn Thành Phú", studentClass: "21DTHB2",isMonitor: true, studentEmail: "nt.phu268@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 5, studentCode: "2180601133", studentFullname: "Nguyễn Minh Khang", studentClass: "21DTHB2",isMonitor: false, studentEmail: "mkhoangvip@gmail.com", studentPhone: "123456789", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648"},
-        { id: 6, studentCode: "2180601133", studentFullname: "Phạm Danh Tuấn", studentClass: "21DTHB2",isMonitor: true, studentEmail: "phamdanhtuan@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 7, studentCode: "2180601133", studentFullname: "Nguyễn Thành Phú", studentClass: "21DTHB2",isMonitor: true, studentEmail: "nt.phu268@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 8, studentCode: "2180601133", studentFullname: "Nguyễn Minh Khang", studentClass: "21DTHB2",isMonitor: false, studentEmail: "mkhoangvip@gmail.com", studentPhone: "123456789", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648"},
-        { id: 9, studentCode: "2180601133", studentFullname: "Phạm Danh Tuấn", studentClass: "21DTHB2",isMonitor: true, studentEmail: "phamdanhtuan@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 10, studentCode: "2180601133", studentFullname: "Nguyễn Thành Phú", studentClass: "21DTHB2",isMonitor: true, studentEmail: "nt.phu268@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 11, studentCode: "2180601133", studentFullname: "Nguyễn Minh Khang", studentClass: "21DTHB2",isMonitor: false, studentEmail: "mkhoangvip@gmail.com", studentPhone: "123456789", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648"},
-        { id: 12, studentCode: "2180601133", studentFullname: "Phạm Danh Tuấn", studentClass: "21DTHB2",isMonitor: true, studentEmail: "phamdanhtuan@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 13, studentCode: "2180601133", studentFullname: "Nguyễn Thành Phú", studentClass: "21DTHB2",isMonitor: true, studentEmail: "nt.phu268@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 14, studentCode: "2180601133", studentFullname: "Nguyễn Minh Khang", studentClass: "21DTHB2",isMonitor: false, studentEmail: "mkhoangvip@gmail.com", studentPhone: "123456789", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648"},
-        { id: 15, studentCode: "2180601133", studentFullname: "Phạm Danh Tuấn", studentClass: "21DTHB2",isMonitor: true, studentEmail: "phamdanhtuan@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 16, studentCode: "2180601133", studentFullname: "Nguyễn Thành Phú", studentClass: "21DTHB2",isMonitor: true, studentEmail: "nt.phu268@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 17, studentCode: "2180601133", studentFullname: "Nguyễn Minh Khang", studentClass: "21DTHB2",isMonitor: false, studentEmail: "mkhoangvip@gmail.com", studentPhone: "123456789", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648"},
-        { id: 18, studentCode: "2180601133", studentFullname: "Phạm Danh Tuấn", studentClass: "21DTHB2",isMonitor: true, studentEmail: "phamdanhtuan@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 19, studentCode: "2180601133", studentFullname: "Nguyễn Thành Phú", studentClass: "21DTHB2",isMonitor: true, studentEmail: "nt.phu268@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 20, studentCode: "2180601133", studentFullname: "Nguyễn Minh Khang", studentClass: "21DTHB2",isMonitor: false, studentEmail: "mkhoangvip@gmail.com", studentPhone: "123456789", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648"},
-        { id: 21, studentCode: "2180601133", studentFullname: "Phạm Danh Tuấn", studentClass: "21DTHB2",isMonitor: true, studentEmail: "phamdanhtuan@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 22, studentCode: "2180601133", studentFullname: "Nguyễn Thành Phú", studentClass: "21DTHB2",isMonitor: true, studentEmail: "nt.phu268@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
-        { id: 23, studentCode: "2180601133", studentFullname: "Nguyễn Minh Khang", studentClass: "21DTHB2",isMonitor: false, studentEmail: "mkhoangvip@gmail.com", studentPhone: "123456789", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648"},
-        { id: 24, studentCode: "2180601133", studentFullname: "Phạm Danh Tuấn", studentClass: "21DTHB2",isMonitor: true, studentEmail: "phamdanhtuan@gmail.com", studentPhone: "0934566878", monitor: true, studentIDfacebook:"https://www.facebook.com/profile.php?id=1000854648" },
+        { id: 1, studentCode: "2180601133", studentFullname: "Nguyễn Thành Phú", studentClass: "21DTHB2", isMonitor: true, studentEmail: "nt.phu268@gmail.com", studentPhone: "0934566878" },
+        { id: 2, studentCode: "", studentFullname: "Nguyễn Minh Khang", studentClass: "21DTHB2", isMonitor: false, studentEmail: "", studentPhone: "123456789" },
+        { id: 3, studentCode: "2180601133", studentFullname: "Phạm Danh Tuấn", studentClass: "21DTHB2", isMonitor: true, studentEmail: "", studentPhone: "" },
       ];
 
 
       const [tableData, setTableData] = useState([]);
+      const [showIncomplete, setShowIncomplete] = useState(false);
       const [quantity, setQuantity] = useState(10); // Số bản ghi trên mỗi trang
       const [page, setPage] = useState(1); // Trang hiện tại
       const [totalPage, setTotalPage] = useState(1); // Tổng số trang
@@ -41,15 +22,17 @@ const Student = () => {
       const [showEditStudent, setShowEditStudent] = useState(false); // Hiển thị form sửa
       const [showDeleteStudent, setShowDeleteStudent] = useState(false); // Hiển thị form xóa
 
-
-      // Xử lý phân trang và tìm kiếm
-    useEffect(() => {
-    // Lọc theo từ khóa
-    const filteredData = data.filter(
-      (item) =>
-        item.studentCode.toLowerCase().includes(search.toLowerCase()) ||
-        item.studentFullname.toLowerCase().includes(search.toLowerCase()) ||
-        item.studentClass.toLowerCase().includes(search.toLowerCase()),
+   // Xử lý phân trang và tìm kiếm
+   useEffect(() => {
+      // Lọc dữ liệu dựa vào trạng thái checkbox
+      const filteredData = (showIncomplete
+          ? data.filter((item) => item.studentCode && item.studentEmail && item.studentPhone) // Chỉ hiển thị sinh viên đầy đủ thông tin
+          : data // Hiển thị tất cả sinh viên
+      ).filter(
+          (item) =>
+              item.studentCode.toLowerCase().includes(search.toLowerCase()) ||
+              item.studentFullname.toLowerCase().includes(search.toLowerCase()) ||
+              item.studentClass.toLowerCase().includes(search.toLowerCase())
     );
 
     // Tính tổng số trang
@@ -60,7 +43,8 @@ const Student = () => {
     const startIndex = (page - 1) * quantity;
     const currentData = filteredData.slice(startIndex, startIndex + quantity);
     setTableData(currentData);
-  }, [quantity, page, search]);
+}, [quantity, page, search, showIncomplete]); // Đảm bảo cập nhật khi `showIncomplete` thay đổi
+
 
   // Xử lý chuyển trang
   function handleNextPage() {
@@ -161,6 +145,36 @@ const Student = () => {
               className="rounded-md border-2 p-2"
             />
           </div>
+          <div className="flex justify-end items-center">
+              <label className="flex items-center cursor-pointer">
+                  <div className="relative">
+                      <input
+                          type="checkbox"
+                          checked={showIncomplete}
+                          onChange={() => setShowIncomplete(!showIncomplete)}
+                          className="sr-only"
+                      />
+                      <div
+                          className={`block w-8 h-4 rounded-full ${
+                              showIncomplete ? "bg-blue-500" : "bg-gray-300"
+                          } transition-colors duration-300`}
+                      ></div>
+                      <div
+                          className={`dot absolute left-0.5 top-0.5 w-3 h-3 rounded-full bg-white transition-transform duration-300 ${
+                              showIncomplete ? "translate-x-4" : ""
+                          }`}
+                      ></div>
+                  </div>
+                  <span className="ml-2 text-sm text-gray-700">
+                      {showIncomplete
+                          ? "Ẩn các mã số sinh viên bị thiếu thông tin"
+                          : "Ẩn các mã số sinh viên bị thiếu thông tin"}
+                  </span>
+              </label>
+          </div>
+
+
+
         <table className="mt-4 w-full ">
             <thead>
                 <tr className="bg-gray-100">
