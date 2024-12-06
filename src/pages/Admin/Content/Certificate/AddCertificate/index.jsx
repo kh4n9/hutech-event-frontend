@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+// eslint-disable-next-line react/prop-types
 const AddCerficate = ({ onClose }) => {
   const [modeUpload, setModeUpload] = useState("link");
   const [imageURL, setImageURL] = useState("");

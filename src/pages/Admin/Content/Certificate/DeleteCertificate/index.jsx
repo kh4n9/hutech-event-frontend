@@ -1,3 +1,4 @@
+// eslint-disable-next-line react/prop-types
 const DeleteCertificate = ({ onClose }) => {
   return (
     <div className="fixed inset-0 z-10 flex items-center justify-center overflow-y-auto bg-gray-500 bg-opacity-50">

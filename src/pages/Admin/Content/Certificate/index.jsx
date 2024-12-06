@@ -76,6 +76,7 @@ const Certificate = () => {
     const startIndex = (page - 1) * quantity;
     const currentData = filteredData.slice(startIndex, startIndex + quantity);
     setTableData(currentData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quantity, page, search]);
 
   // Xử lý chuyển trang
