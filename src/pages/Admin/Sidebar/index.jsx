@@ -19,7 +19,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="relative m-2 w-64 overflow-y-auto rounded-xl bg-slate-100 p-4 shadow-lg">
+    <div className="relative m-2 min-w-64 overflow-y-auto rounded-xl bg-slate-100 p-4 shadow-lg">
       <div>
         <h1
           className="mb-4 cursor-pointer rounded-xl bg-slate-100 p-2 text-lg font-bold shadow-md transition-all duration-500 hover:bg-blue-200"

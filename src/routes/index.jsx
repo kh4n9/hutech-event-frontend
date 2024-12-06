@@ -21,6 +21,10 @@ const AppRoutes = () => {
         <Route path="/admin/topic" element={<Admin content="topic" />} />
         {/* Admin - Dữ liệu */}
         <Route path="/admin/event" element={<Admin content="event" />} />
+        <Route
+          path="/admin/event/:id"
+          element={<Admin content="event-detail" />}
+        />
         <Route path="/admin/student" element={<Admin content="student" />} />
         <Route path="/admin/monitor" element={<Admin content="monitor" />} />
         <Route

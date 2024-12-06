@@ -7,7 +7,7 @@ const Admin = ({ content }) => {
   return (
     <div className="flex min-h-screen flex-col bg-slate-200">
       <Header />
-      <div className="flex flex-grow">
+      <div className="max-w-screen flex flex-grow">
         <Sidebar />
         <Content content={content} />
       </div>
