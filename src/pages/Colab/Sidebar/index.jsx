@@ -28,7 +28,7 @@ const Sidebar = () => {
           } overflow-hidden`}
         >
           <Link
-            to="/admin/event"
+            to="/colab/event"
             className="mb-4 flex gap-2 rounded-xl bg-slate-100 p-2 shadow-sm hover:bg-blue-200"
           >
             <svg
@@ -48,7 +48,7 @@ const Sidebar = () => {
             Sự kiện
           </Link>
           <Link
-            to="/admin/student"
+            to="/colab/student"
             className="mb-4 flex gap-2 rounded-xl bg-slate-100 p-2 shadow-sm hover:bg-blue-200"
           >
             <svg
@@ -68,7 +68,7 @@ const Sidebar = () => {
             Sinh viên
           </Link>
           <Link
-            to="/admin/monitor"
+            to="/colab/monitor"
             className="mb-4 flex gap-2 rounded-xl bg-slate-100 p-2 shadow-sm hover:bg-blue-200"
           >
             <svg
@@ -88,7 +88,7 @@ const Sidebar = () => {
             Ban cán sự
           </Link>
           <Link
-            to="/admin/certificate"
+            to="/colab/certificate"
             className="mb-4 flex gap-2 rounded-xl bg-slate-100 p-2 shadow-sm hover:bg-blue-200"
           >
             <svg
@@ -123,7 +123,7 @@ const Sidebar = () => {
           } overflow-hidden`}
         >
           <Link
-            to="/admin/report-student"
+            to="/colab/report-student"
             className="mb-4 flex gap-2 rounded-xl bg-slate-100 p-2 shadow-sm hover:bg-blue-200"
           >
             <svg
@@ -143,7 +143,7 @@ const Sidebar = () => {
             DS SV tham gia
           </Link>
           <Link
-            to="/admin/report-motitor"
+            to="/colab/report-motitor"
             className="mb-4 flex gap-2 rounded-xl bg-slate-100 p-2 shadow-sm hover:bg-blue-200"
           >
             <svg
@@ -163,7 +163,7 @@ const Sidebar = () => {
             DS BCS tham gia
           </Link>
           <Link
-            to="/admin/report-class"
+            to="/colab/report-class"
             className="mb-4 flex gap-2 rounded-xl bg-slate-100 p-2 shadow-sm hover:bg-blue-200"
           >
             <svg
