@@ -104,7 +104,7 @@ const Student = () => {
                   </svg>
             
                     <div>
-                        <h1 className="text-2xl font-semibold">Danh Sách Sinh Viên</h1>
+                        <h1 className="text-2xl font-semibold">Danh sách sinh viên</h1>
                         <p className="text-gray-500">
                             Bạn có thể tra cứu thông tin và các sự kiện mà sinh viên đó tham gia tại đây.
                         </p>
