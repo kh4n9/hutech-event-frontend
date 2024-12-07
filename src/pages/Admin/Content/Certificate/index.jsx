@@ -149,7 +149,7 @@ const Certificate = () => {
       </div>
       <div className="mt-4 rounded-md bg-white p-4 shadow-md">
         <h1 className="text-2xl font-semibold text-gray-700">
-          Danh sách chứng nhận
+          DANH SÁCH CHỨNG NHẬN
         </h1>
         <hr className="my-2" />
         <div className="flex items-center justify-between">
