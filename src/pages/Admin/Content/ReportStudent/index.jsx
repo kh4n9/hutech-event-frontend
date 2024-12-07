@@ -41,6 +41,7 @@ const ReportStudent = () => {
         })),
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dayFrom, dayTo]);
 
   // bấm vào đây để checked tất cả các sự kiện
