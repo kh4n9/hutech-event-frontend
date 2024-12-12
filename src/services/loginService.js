@@ -1,9 +1,11 @@
+const API_URL = "http://localhost:3000/api/auth";
+
 const login = async (username, password) => {
   if (!username || !password) {
     throw new Error("Vui lòng nhập đầy đủ thông tin");
   }
   try {
-    const response = await fetch("http://localhost:3000/api/auth/login", {
+    const response = await fetch(`${API_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

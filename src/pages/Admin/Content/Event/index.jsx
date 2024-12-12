@@ -4,88 +4,16 @@ import AddEvent from "./AddEvent";
 import DeleteEvent from "./DeleteEvent";
 import EditEvent from "./EditEvent";
 import { Link } from "react-router-dom";
+import {
+  getEvents,
+  getEventById,
+  updateEvent,
+} from "../../../../services/admin/eventService";
+import { getTopicEventByEventId } from "../../../../services/admin/topicEvent";
+import { getTopicById } from "../../../../services/admin/topicService";
 
 const Event = () => {
-  const data = [
-    {
-      id: 1,
-      title: "event 1",
-      time: dayjs("10-10-2020 19:00:00").format("DD-MM-YYYY HH:mm:ss"),
-      location: "E1-10.1",
-      hostBy: "Khoa CNTT",
-      allowCheckin: true,
-      hidden: false,
-      // số lượng người checkin
-      checkin: 0,
-      // số lượng người đăng ký
-      register: 0,
-      topic: [
-        {
-          id: 1,
-          name: "topic 1",
-        },
-        {
-          id: 2,
-          name: "topic 2",
-        },
-      ],
-    },
-    {
-      id: 2,
-      title: "event 2",
-      time: dayjs("10-11-2020 19:00:00").format("DD-MM-YYYY HH:mm:ss"),
-      location: "E1-10.1",
-      hostBy: "Khoa CNTT",
-      allowCheckin: true,
-      hidden: true,
-      checkin: 0,
-      register: 0,
-      topic: [
-        {
-          id: 1,
-          name: "topic 1",
-        },
-        {
-          id: 2,
-          name: "topic 2",
-        },
-        {
-          id: 3,
-          name: "topic 3",
-        },
-      ],
-    },
-    {
-      id: 3,
-      title: "event 3",
-      time: dayjs("10-12-2020 19:00:00").format("DD-MM-YYYY HH:mm:ss"),
-      location: "E1-10.1",
-      hostBy: "Khoa CNTT",
-      allowCheckin: false,
-      hidden: false,
-      checkin: 0,
-      register: 0,
-      topic: [],
-    },
-    {
-      id: 4,
-      title: "event 4",
-      time: dayjs("10-12-2020 19:00:00").format("DD-MM-YYYY HH:mm:ss"),
-      location: "E1-10.1",
-      hostBy: "Khoa CNTT",
-      allowCheckin: false,
-      hidden: false,
-      checkin: 0,
-      register: 0,
-      topic: [
-        {
-          id: 1,
-          name: "topic 1",
-        },
-      ],
-    },
-  ];
-
+  const [data, setData] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [quantity, setQuantity] = useState(10); // Số bản ghi trên mỗi trang
   const [page, setPage] = useState(1); // Trang hiện tại
@@ -94,14 +22,44 @@ const Event = () => {
   const [timeFrom, setTimeFrom] = useState(""); // Thời gian bắt đầu
   const [timeTo, setTimeTo] = useState(""); // Thời gian kết thúc
   const [showAddEvent, setShowAddEvent] = useState(false);
-  const [showEditEvent, setShowEditEvent] = useState(false);
-  const [showDeleteEvent, setShowDeleteEvent] = useState(false);
+  const [eventDeleteId, setEventDeleteId] = useState("");
+  const [eventEditId, setEventEditId] = useState("");
+  const [refresh, setRefresh] = useState(false);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const events = await getEvents();
+
+        // Xử lý song song tất cả các event
+        const eventsWithTopics = await Promise.all(
+          events.map(async (event) => {
+            const topicEvents = await getTopicEventByEventId(event._id);
+            const topics = await Promise.all(
+              topicEvents.map(async (topicEvent) => {
+                const topic = await getTopicById(topicEvent.topicId);
+                return topic;
+              }),
+            );
+            // Tạo bản sao của event và thêm thuộc tính topics
+            return { ...event, topics: topics };
+          }),
+        );
+
+        setData(eventsWithTopics);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
+
+    fetchEvents();
+  }, [eventDeleteId, eventEditId, refresh]);
 
   // Xử lý phân trang và tìm kiếm
   useEffect(() => {
     // Lọc theo từ khóa
     let filteredData = data.filter((item) =>
-      item.title.toLowerCase().includes(search.toLowerCase()),
+      item.name.toLowerCase().includes(search.toLowerCase()),
     );
 
     // Lọc theo ngày
@@ -122,8 +80,7 @@ const Event = () => {
     const startIndex = (page - 1) * quantity;
     const currentData = filteredData.slice(startIndex, startIndex + quantity);
     setTableData(currentData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quantity, page, search, timeFrom, timeTo]);
+  }, [quantity, page, search, timeFrom, timeTo, data]);
 
   // Xử lý chuyển trang
   const handleNextPage = () => {
@@ -144,37 +101,55 @@ const Event = () => {
   };
 
   // Xử lý sửa sự kiện
-  const handleEditEvent = () => {
-    setShowEditEvent(true);
+  const handleEditEvent = (id) => {
+    setEventEditId(id);
   };
 
   const handleCloseEditEvent = () => {
-    setShowEditEvent(false);
+    setEventEditId("");
   };
 
   // Xử lý xóa sự kiện
-  const handleDeleteEvent = () => {
-    setShowDeleteEvent(true);
+  const handleDeleteEvent = (id) => {
+    setEventDeleteId(id);
   };
 
   const handleCloseDeleteEvent = () => {
-    setShowDeleteEvent(false);
+    setEventDeleteId("");
   };
 
-  const handleCheckinChange = (id) => {
-    setTableData((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, allowCheckin: !item.allowCheckin } : item,
-      ),
-    );
+  const handleCheckinChange = async (id) => {
+    try {
+      const event = await getEventById(id);
+      await updateEvent(id, {
+        allowCheckin: !event.allowCheckin,
+      });
+      setTableData((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, allowCheckin: !item.allowCheckin } : item,
+        ),
+      );
+      setRefresh(!refresh);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const handleHiddenChange = (id) => {
-    setTableData((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, hidden: !item.hidden } : item,
-      ),
-    );
+  const handleHiddenChange = async (id) => {
+    try {
+      const event = await getEventById(id);
+      await updateEvent(id, {
+        hidden: !event.hidden,
+      });
+      setTableData((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, hidden: !item.hidden } : item,
+        ),
+      );
+      setRefresh(!refresh);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -283,18 +258,20 @@ const Event = () => {
           <tbody>
             {tableData.map((item) => (
               <tr
-                key={item.id}
+                key={item._id}
                 className="border-y-2 border-gray-200 hover:bg-gray-100"
               >
-                <td>{item.id}</td>
+                <td className="max-w-10 overflow-hidden text-ellipsis whitespace-nowrap">
+                  {item._id}
+                </td>
                 <td>{dayjs(item.time).format("DD-MM-YYYY")}</td>
                 <td>
                   <div>
-                    {item.title}
+                    {item.name}
                     <div className="mt-2 flex space-x-1">
-                      {item.topic.map((topic) => (
+                      {item.topics?.map((topic) => (
                         <span
-                          key={topic.id}
+                          key={topic._id}
                           className="rounded-full bg-gray-500 p-0 px-1 text-[12px] text-white"
                         >
                           {topic.name}
@@ -311,7 +288,7 @@ const Event = () => {
                     className="h-7 w-14"
                     type="checkbox"
                     checked={item.allowCheckin}
-                    onChange={() => handleCheckinChange(item.id)}
+                    onChange={() => handleCheckinChange(item._id)}
                   />
                 </td>
                 {/* Hiển thị là switch checkbox input */}
@@ -320,7 +297,7 @@ const Event = () => {
                     className="h-7 w-14 rounded-full"
                     type="checkbox"
                     checked={!item.hidden}
-                    onChange={() => handleHiddenChange(item.id)}
+                    onChange={() => handleHiddenChange(item._id)}
                   />
                 </td>
                 {/* Số lượng checkin / tổng số người đăng ký */}
@@ -334,7 +311,7 @@ const Event = () => {
                 </td>
                 <td>
                   <button
-                    onClick={handleEditEvent}
+                    onClick={() => handleEditEvent(item._id)}
                     className="rounded-md bg-blue-500 p-1 text-white transition-all duration-300 ease-in-out hover:bg-blue-700"
                   >
                     <svg
@@ -353,7 +330,7 @@ const Event = () => {
                     </svg>
                   </button>
                   <button className="ml-2 rounded-md bg-green-500 p-1 text-white hover:bg-green-700">
-                    <Link to={`/admin/event/${item.id}`}>
+                    <Link to={`/admin/event/${item._id}`}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -372,7 +349,7 @@ const Event = () => {
                   </button>
 
                   <button
-                    onClick={handleDeleteEvent}
+                    onClick={() => handleDeleteEvent(item._id)}
                     className="ml-2 rounded-md bg-red-500 p-1 text-white transition-all duration-300 ease-in-out hover:bg-red-700"
                   >
                     <svg
@@ -418,8 +395,12 @@ const Event = () => {
         </div>
       </div>
       {showAddEvent && <AddEvent onClose={handleCloseAddEvent} />}
-      {showEditEvent && <EditEvent onClose={handleCloseEditEvent} />}
-      {showDeleteEvent && <DeleteEvent onClose={handleCloseDeleteEvent} />}
+      {eventEditId && (
+        <EditEvent onClose={handleCloseEditEvent} id={eventEditId} />
+      )}
+      {eventDeleteId && (
+        <DeleteEvent onClose={handleCloseDeleteEvent} id={eventDeleteId} />
+      )}
     </div>
   );
 };

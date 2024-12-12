@@ -1,4 +1,60 @@
+import {
+  getStudents,
+  updateStudent,
+} from "../../../../services/admin/studentService";
+import { useState, useEffect } from "react";
+
 const MonitorList = () => {
+  const [monitorIds, setMonitorIds] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [status, setStatus] = useState(null);
+
+  useEffect(() => {
+    try {
+      const fetchStudents = async () => {
+        const students = await getStudents();
+        const monitorIds = students
+          .filter((student) => student.isMonitor)
+          .map((student) => student.studentCode);
+        setMonitorIds(monitorIds);
+        setStudents(students);
+      };
+      fetchStudents();
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  const handleSave = () => {
+    try {
+      monitorIds.forEach(async (monitorId) => {
+        const student = students.find(
+          (student) => student.studentCode === monitorId,
+        );
+        if (student) {
+          const StudentUpdate = {
+            ...student,
+            isMonitor: true,
+          };
+          await updateStudent(student._id, StudentUpdate);
+        }
+      });
+      const studentsNotBeMonitor = students.filter(
+        (student) => !monitorIds.includes(student.studentCode),
+      );
+      studentsNotBeMonitor.forEach(async (student) => {
+        const StudentUpdate = {
+          ...student,
+          isMonitor: false,
+        };
+        await updateStudent(student._id, StudentUpdate);
+      });
+      setStatus("Cập nhật thành công");
+    } catch (error) {
+      setStatus(error);
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -35,7 +91,7 @@ const MonitorList = () => {
         <p className="mb-2 text-sm text-gray-500">
           Mỗi dòng là 01 (một) mã số sinh viên, bạn có thể cập nhật danh sách
           ban cán sự lớp tại đây hoặc tại menu{" "}
-          <a className="text-blue-500" href="/admin/studen">
+          <a className="text-blue-500" href="/admin/student">
             Sinh Viên
           </a>
         </p>
@@ -45,13 +101,21 @@ const MonitorList = () => {
           được hệ thống tạo thông tin tự động.
         </p>
         <textarea
+          onChange={(e) => setMonitorIds(e.target.value.split("\n"))}
+          value={monitorIds.join("\n")}
           id="monitorIds"
           placeholder="Nhập mã số sinh viên, mỗi mã trên một dòng..."
           className="h-40 w-full rounded-lg border border-gray-400 p-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
         ></textarea>
-        <button className="rounded-md border border-gray-400 bg-white px-4 py-2 shadow-md transition-all duration-300 ease-in-out hover:border-blue-500 hover:bg-blue-200">
-          Lưu lại
-        </button>
+        {status && <p className="mt-2 text-sm text-green-500">{status}</p>}
+        <div className="flex items-center justify-end">
+          <button
+            onClick={handleSave}
+            className="rounded-md bg-white px-4 py-2 shadow-md transition-all duration-300 ease-in-out hover:bg-blue-200"
+          >
+            Lưu lại
+          </button>
+        </div>
       </div>
     </div>
   );
