@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+// eslint-disable-next-line react/prop-types
 const EditEvent = ({ onClose }) => {
   const topics = [
     { id: 1, name: "Chủ đề 1" },

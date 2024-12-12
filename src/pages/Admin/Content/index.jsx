@@ -10,6 +10,9 @@ import Setting from "./Setting";
 import Student from "./Student";
 import Topic from "./Topic";
 import User from "./User";
+// import DetailStudent from "./DetailStudent";
+// import DetailMonitor from "./DetailMonitor";
+// import DetailClass from "./DetailClass";
 
 // eslint-disable-next-line react/prop-types
 const Content = ({ content }) => {
@@ -26,8 +29,11 @@ const Content = ({ content }) => {
       {content === "monitor" && <Monitor />}
       {content === "certificate" && <Certificate />}
       {content === "report-student" && <ReportStudent />}
-      {content === "report-motitor" && <ReportMonitor />}
+      {content === "report-monitor" && <ReportMonitor />}
       {content === "report-class" && <ReportClass />}
+      {/* {content === "report-student-detail" && <DetailStudent />}
+      {content === "report-monitor-detail" && <DetailMonitor />}
+      {content === "report-class-detail" && <DetailClass />} */}
     </div>
   );
 };

@@ -53,7 +53,6 @@ const ReportStudent = () => {
       })),
     );
   };
-
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -178,8 +177,31 @@ const ReportStudent = () => {
             </div>
           ))}
         </div>
+       
       </div>
+      <div className="flex justify-end">
+        <button
+          // onClick={handleSearch} // Gắn hàm handleSearch vào sự kiện onClick
+          className="flex items-center justify-center gap-2 w-full sm:w-auto rounded-md p-3 shadow-md transition-all duration-300 ease-in-out hover:bg-blue-200 focus:outline-none"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="h-5 w-5 text-gray-600"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-4.35-4.35m2.15-5.4a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z"
+            />
+          </svg>
+          Tra cứu
+        </button>
     </div>
+   </div>
   );
 };
 

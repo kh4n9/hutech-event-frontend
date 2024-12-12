@@ -37,14 +37,28 @@ const AppRoutes = () => {
           path="/admin/report-student"
           element={<Admin content="report-student" />}
         />
+        {/* <Route
+          path="/admin/report-student/report-student-detail"
+          element={<Admin content="report-student-detail" />}
+        /> */}
+
         <Route
-          path="/admin/report-motitor"
-          element={<Admin content="report-motitor" />}
+          path="/admin/report-monitor"
+          element={<Admin content="report-monitor" />}
         />
+        {/* <Route
+          path="/admin/report-monitor/report-monitor-detail"
+          element={<Admin content="report-monitor-detail" />}
+        /> */}
+
         <Route
           path="/admin/report-class"
           element={<Admin content="report-class" />}
         />
+        {/*<Route
+          path="/admin/report-class/report-class-detail"
+          element={<Admin content="report-class-detail" />}
+        /> */}
         {/* Colab */}
         <Route path="/colab" element={<Colab />} />
         <Route path="/colab/event" element={<Colab content="event" />} />
@@ -63,8 +77,8 @@ const AppRoutes = () => {
           element={<Colab content="report-student" />}
         />
         <Route
-          path="/colab/report-motitor"
-          element={<Colab content="report-motitor" />}
+          path="/colab/report-monitor"
+          element={<Colab content="report-monitor" />}
         />
         <Route
           path="/colab/report-class"
