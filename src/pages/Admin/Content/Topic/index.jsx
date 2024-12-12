@@ -2,36 +2,37 @@ import { useEffect, useState } from "react";
 import AddTopic from "./AddTopic";
 import EditTopic from "./EditTopic";
 import DeleteTopic from "./DeleteTopic";
+import { getTopics } from "../../../../services/admin/topicService";
 
 const Topic = () => {
-  const data = [
-    { id: 1, title: "topic 1" },
-    { id: 2, title: "topic 2" },
-    { id: 3, title: "topic 3" },
-    { id: 4, title: "topic 4" },
-    { id: 5, title: "topic 5" },
-    { id: 6, title: "topic 6" },
-    { id: 7, title: "topic 7" },
-    { id: 8, title: "topic 8" },
-    { id: 9, title: "topic 9" },
-    { id: 10, title: "topic 10" },
-    { id: 11, title: "topic 11" },
-  ];
-
+  const [data, setData] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [quantity, setQuantity] = useState(10); // Số bản ghi trên mỗi trang
   const [page, setPage] = useState(1); // Trang hiện tại
   const [totalPage, setTotalPage] = useState(1); // Tổng số trang
   const [search, setSearch] = useState(""); // Từ khóa tìm kiếm
   const [showAddTopic, setShowAddTopic] = useState(false);
-  const [showEditTopic, setShowEditTopic] = useState(false);
-  const [showDeleteTopic, setShowDeleteTopic] = useState(false);
+  const [topicIdEdit, setTopicIdEdit] = useState("");
+  const [topicIdDelete, setTopicIdDelete] = useState("");
+
+  // Lấy dữ liệu chủ đề
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getTopics();
+        setData(response);
+      } catch (error) {
+        console.log("Failed to fetch data:", error);
+      }
+    };
+    fetchData();
+  }, [showAddTopic, topicIdEdit, topicIdDelete]);
 
   // Xử lý phân trang và tìm kiếm
   useEffect(() => {
     // Lọc theo từ khóa
     const filteredData = data.filter((item) =>
-      item.title.toLowerCase().includes(search.toLowerCase()),
+      item.name.toLowerCase().includes(search.toLowerCase()),
     );
 
     // Tính tổng số trang
@@ -42,7 +43,7 @@ const Topic = () => {
     const startIndex = (page - 1) * quantity;
     const currentData = filteredData.slice(startIndex, startIndex + quantity);
     setTableData(currentData);
-  }, [quantity, page, search]);
+  }, [quantity, page, search, data]);
 
   // Xử lý chuyển trang
   const handleNextPage = () => {
@@ -53,24 +54,6 @@ const Topic = () => {
     if (page > 1) setPage(page - 1);
   };
 
-  // Xử lý xóa chủ đề
-  const handleDeleteTopic = () => {
-    setShowDeleteTopic(true);
-  };
-
-  const handleCloseDeleteTopic = () => {
-    setShowDeleteTopic(false);
-  };
-
-  // Xử lý chỉnh sửa chủ đề
-  const handleEditTopic = () => {
-    setShowEditTopic(true);
-  };
-
-  const handleCloseEditTopic = () => {
-    setShowEditTopic(false);
-  };
-
   // Xử lý thêm mới chủ đề
   const handleAddTopic = () => {
     setShowAddTopic(true);
@@ -78,6 +61,24 @@ const Topic = () => {
 
   const handleCloseAddTopic = () => {
     setShowAddTopic(false);
+  };
+
+  // Xử lý sửa chủ đề
+  const handleEditTopic = (id) => {
+    setTopicIdEdit(id);
+  };
+
+  const handleCloseEditTopic = () => {
+    setTopicIdEdit("");
+  };
+
+  // Xử lý xóa chủ đề
+  const handleDeleteTopic = (id) => {
+    setTopicIdDelete(id);
+  };
+
+  const handleCloseDeleteTopic = () => {
+    setTopicIdDelete("");
   };
 
   return (
@@ -157,14 +158,14 @@ const Topic = () => {
           <tbody>
             {tableData.map((item) => (
               <tr
-                key={item.id}
+                key={item._id}
                 className="border-y-2 border-gray-200 hover:bg-gray-100"
               >
-                <td>{item.id}</td>
-                <td>{item.title}</td>
+                <td>{item._id}</td>
+                <td>{item.name}</td>
                 <td>
                   <button
-                    onClick={handleEditTopic}
+                    onClick={() => handleEditTopic(item._id)}
                     className="rounded-md bg-blue-500 p-1 text-white transition-all duration-300 ease-in-out hover:bg-blue-700"
                   >
                     <svg
@@ -183,7 +184,7 @@ const Topic = () => {
                     </svg>
                   </button>
                   <button
-                    onClick={handleDeleteTopic}
+                    onClick={() => handleDeleteTopic(item._id)}
                     className="ml-2 rounded-md bg-red-500 p-1 text-white transition-all duration-300 ease-in-out hover:bg-red-700"
                   >
                     <svg
@@ -230,10 +231,14 @@ const Topic = () => {
       </div>
       {/* Thêm mới chủ đề */}
       {showAddTopic && <AddTopic onClose={handleCloseAddTopic} />}
-      {/* Chỉnh sửa chủ đề */}
-      {showEditTopic && <EditTopic onClose={handleCloseEditTopic} />}
+      {/* Sửa chủ đề */}
+      {topicIdEdit && (
+        <EditTopic id={topicIdEdit} onClose={handleCloseEditTopic} />
+      )}
       {/* Xóa chủ đề */}
-      {showDeleteTopic && <DeleteTopic onClose={handleCloseDeleteTopic} />}
+      {topicIdDelete && (
+        <DeleteTopic id={topicIdDelete} onClose={handleCloseDeleteTopic} />
+      )}
     </div>
   );
 };

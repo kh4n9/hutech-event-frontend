@@ -77,20 +77,22 @@ const ReportMonitor = () => {
               Tra cứu ban cán sự tham gia sự kiện
             </h1>
             <p className="text-gray-500">
-              Bạn có thể tra cứu danh sách số lượng sinh viên theo lớp tham gia các sự kiện tại đây
+              Bạn có thể tra cứu danh sách số lượng sinh viên theo lớp tham gia
+              các sự kiện tại đây
             </p>
           </div>
         </div>
       </div>
       <div className="mt-4 rounded-md bg-white p-4 shadow-md">
         <div>
-        <h2 className="text-2xl font-semibold text-gray-700">
+          <h2 className="text-2xl font-semibold text-gray-700">
             BỘ LỌC DANH SÁCH
           </h2>
         </div>
         <hr className="my-4" />
         <p className="mt-2 text-gray-500">
-          Các sự kiện/hội thảo mà bạn muốn tra cứu (vui lòng chọn ít nhất 1 sự kiện)
+          Các sự kiện/hội thảo mà bạn muốn tra cứu (vui lòng chọn ít nhất 1 sự
+          kiện)
         </p>
 
         <div className="my-2 flex items-center justify-between">
@@ -193,5 +195,3 @@ const ReportMonitor = () => {
 };
 
 export default ReportMonitor;
-
-

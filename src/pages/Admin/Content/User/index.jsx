@@ -1,51 +1,40 @@
 import { useEffect, useState } from "react";
+import { getUsers } from "../../../../services/admin/userService";
+import { getRoles } from "../../../../services/admin/roleService";
+import EditUser from "./EditUser";
 import AddUser from "./AddUser";
 import DeleteUser from "./DeteleUser";
-import EditUser from "./EditUser";
 
 const User = () => {
-  const data = [
-    { id: 1, username: "admin", fullname: "Admin", monitor: true },
-    { id: 2, username: "user", fullname: "User", monitor: false },
-    { id: 3, username: "user1", fullname: "User 1", monitor: false },
-    { id: 4, username: "user2", fullname: "User 2", monitor: false },
-    { id: 5, username: "user3", fullname: "User 3", monitor: false },
-    { id: 6, username: "user4", fullname: "User 4", monitor: false },
-    { id: 7, username: "user5", fullname: "User 5", monitor: false },
-    { id: 8, username: "user6", fullname: "User 6", monitor: false },
-    { id: 9, username: "user7", fullname: "User 7", monitor: false },
-    { id: 10, username: "user8", fullname: "User 8", monitor: false },
-    { id: 11, username: "user9", fullname: "User 9", monitor: false },
-    { id: 12, username: "user10", fullname: "User 10", monitor: false },
-    { id: 13, username: "user11", fullname: "User 11", monitor: false },
-    { id: 14, username: "user12", fullname: "User 12", monitor: false },
-    { id: 15, username: "user13", fullname: "User 13", monitor: false },
-    { id: 16, username: "user14", fullname: "User 14", monitor: false },
-    { id: 17, username: "user15", fullname: "User 15", monitor: false },
-    { id: 18, username: "user16", fullname: "User 16", monitor: false },
-    { id: 19, username: "user17", fullname: "User 17", monitor: false },
-    { id: 20, username: "user18", fullname: "User 18", monitor: false },
-    { id: 21, username: "user19", fullname: "User 19", monitor: false },
-    { id: 22, username: "user20", fullname: "User 20", monitor: false },
-    { id: 23, username: "user21", fullname: "User 21", monitor: false },
-    { id: 24, username: "user22", fullname: "User 22", monitor: false },
-    { id: 25, username: "user23", fullname: "User 23", monitor: false },
-    { id: 26, username: "user24", fullname: "User 24", monitor: false },
-    { id: 27, username: "user25", fullname: "User 25", monitor: false },
-    { id: 28, username: "user26", fullname: "User 26", monitor: false },
-    { id: 29, username: "user27", fullname: "User 27", monitor: false },
-    { id: 30, username: "user28", fullname: "User 28", monitor: false },
-    { id: 31, username: "user29", fullname: "User 29", monitor: false },
-  ];
-
+  const [data, setData] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [quantity, setQuantity] = useState(10); // Số bản ghi trên mỗi trang
   const [page, setPage] = useState(1); // Trang hiện tại
   const [totalPage, setTotalPage] = useState(1); // Tổng số trang
   const [search, setSearch] = useState(""); // Từ khóa tìm kiếm
-  const [showAddUser, setShowAddUser] = useState(false); // Hiển thị form thêm mới
-  const [showEditUser, setShowEditUser] = useState(false); // Hiển thị form sửa
-  const [showDeleteUser, setShowDeleteUser] = useState(false); // Hiển thị form xóa
+  const [userIdEdit, setUserIdEdit] = useState(null); // Dữ liệu user cần sửa
+  const [showAddUser, setShowAddUser] = useState(false); // Hiển thị AddUser
+  const [userIdDelete, setUserIdDelete] = useState(null); // Dữ liệu user cần xóa
+
+  // Lấy dữ liệu từ API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const roles = await getRoles();
+        const users = await getUsers();
+        const data = users.map((user) => ({
+          id: user._id,
+          username: user.username,
+          fullname: user.fullname,
+          role: roles.find((role) => role._id === user.roleId).name,
+        }));
+        setData(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, [showAddUser, userIdEdit, userIdDelete]);
 
   // Xử lý phân trang và tìm kiếm
   useEffect(() => {
@@ -64,7 +53,7 @@ const User = () => {
     const startIndex = (page - 1) * quantity;
     const currentData = filteredData.slice(startIndex, startIndex + quantity);
     setTableData(currentData);
-  }, [quantity, page, search]);
+  }, [quantity, page, search, data]);
 
   // Xử lý chuyển trang
   const handleNextPage = () => {
@@ -75,31 +64,27 @@ const User = () => {
     if (page > 1) setPage(page - 1);
   };
 
-  // Xử lý thêm mới tài khoản
-  const handleAddUser = () => {
-    setShowAddUser(true);
+  // xử lý sửa tài khoản
+  const handleEditUser = (id) => {
+    setUserIdEdit(id);
   };
 
+  const closeEditUser = () => {
+    setUserIdEdit(null);
+  };
+
+  // xử lý thêm mới tài khoản reload lại trang bằng navigate
   const closeAddUser = () => {
     setShowAddUser(false);
   };
 
-  // xử lý sửa tài khoản
-  const handleEditUser = () => {
-    setShowEditUser(true);
-  };
-
-  const closeEditUser = () => {
-    setShowEditUser(false);
-  };
-
   // Xử lý xóa tài khoản
-  const handleDeleteUser = () => {
-    setShowDeleteUser(true);
+  const handleDeleteUser = (id) => {
+    setUserIdDelete(id);
   };
 
   const closeDeleteUser = () => {
-    setShowDeleteUser(false);
+    setUserIdDelete(null);
   };
 
   return (
@@ -131,7 +116,7 @@ const User = () => {
         </div>
         <div>
           <button
-            onClick={handleAddUser}
+            onClick={() => setShowAddUser(true)}
             className="rounded-md bg-white px-4 py-2 shadow-md transition-all duration-300 ease-in-out hover:bg-blue-200"
           >
             Thêm mới tài khoản
@@ -183,10 +168,12 @@ const User = () => {
                 <td>{item.id}</td>
                 <td>{item.username}</td>
                 <td>{item.fullname}</td>
-                <td>{item.monitor ? "Quản trị viên" : "Nhân viên"}</td>
+                <td>
+                  {item.role === "admin" ? "Quản trị viên" : "Cộng tác viên"}
+                </td>
                 <td>
                   <button
-                    onClick={handleEditUser}
+                    onClick={() => handleEditUser(item.id)}
                     className="rounded-md bg-blue-500 p-1 text-white transition-all duration-300 ease-in-out hover:bg-blue-700"
                   >
                     <svg
@@ -205,7 +192,7 @@ const User = () => {
                     </svg>
                   </button>
                   <button
-                    onClick={handleDeleteUser}
+                    onClick={() => handleDeleteUser(item.id)}
                     className="ml-2 rounded-md bg-red-500 p-1 text-white transition-all duration-300 ease-in-out hover:bg-red-700"
                   >
                     <svg
@@ -251,11 +238,16 @@ const User = () => {
         </div>
       </div>
       {/* Hiển thị AddUser nếu showAddUser = true */}
-      {showAddUser && <AddUser onClose={closeAddUser} />}
-      {/* Hiển thị EditUser nếu showEditUser = true */}
-      {showEditUser && <EditUser onClose={closeEditUser} />}
-      {/* Hiển thị DeleteUser nếu showDeleteUser = true */}
-      {showDeleteUser && <DeleteUser onClose={closeDeleteUser} />}
+      {userIdEdit && (
+        <EditUser userIdEdit={userIdEdit} closeEditUser={closeEditUser} />
+      )}
+      {showAddUser && <AddUser closeAddUser={closeAddUser} />}
+      {userIdDelete && (
+        <DeleteUser
+          userIdDelete={userIdDelete}
+          closeDeleteUser={closeDeleteUser}
+        />
+      )}
     </div>
   );
 };
