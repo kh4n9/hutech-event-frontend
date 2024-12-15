@@ -1,5 +1,5 @@
 import axios from "axios";
-import { authHeader } from "../authService";
+import authHeader from "../authHeader";
 
 const getStudentEvents = async () => {
   try {
@@ -58,9 +58,24 @@ const createStudentEvent = async (studentEvent) => {
   }
 };
 
+const deleteStudentEvent = async (id) => {
+  try {
+    const response = await axios.delete(
+      `http://localhost:3000/api/admin/student-events/${id}`,
+      {
+        headers: authHeader(),
+      },
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
+
 export {
   getStudentEvents,
   getStudentEventsByStudentId,
   getStudentEventsByEventId,
   createStudentEvent,
+  deleteStudentEvent,
 };

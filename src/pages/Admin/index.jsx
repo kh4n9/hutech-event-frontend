@@ -1,7 +1,7 @@
 import Content from "./Content";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-import ProtectAdmin from "../../components/ProtectAmin";
+import ProtectAdmin from "../../components/ProtectAdmin";
 
 // eslint-disable-next-line react/prop-types
 const Admin = ({ content }) => {

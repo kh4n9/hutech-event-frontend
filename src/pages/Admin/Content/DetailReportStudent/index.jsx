@@ -1,6 +1,7 @@
-import { useState,  useRef } from "react";
+import { useState, useRef } from "react";
 import { useDownloadExcel } from "react-export-table-to-excel";
-const DetailClass = () => {
+
+const DetailReportStudent = () => {
   const data = [
     {
       id: 1,
@@ -27,18 +28,18 @@ const DetailClass = () => {
       ],
     },
   ];
-  
+
   const tableRef = useRef(null);
   const [tableData] = useState(data);
   const { onDownload } = useDownloadExcel({
     currentTableRef: tableRef.current,
-    filename: "DanhSachSVTheoLop ",
-    sheet: "Students-Class",
+    filename: "DanhSachSinhVien ",
+    sheet: "Students",
   });
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -55,9 +56,12 @@ const DetailClass = () => {
             />
           </svg>
           <div>
-            <h1 className="text-2xl font-semibold">Tra cứu số lượng SV theo lớp tham gia sự kiện</h1>
+            <h1 className="text-2xl font-semibold">
+              Tra cứu sinh viên tham gia sự kiện
+            </h1>
             <p className="text-gray-500">
-            Bạn có thể tra cứu danh sách số lượng sinh viên theo lớp tham gia các sự kiện tại đây
+              Bạn có thể tra cứu danh sách sinh viên tham gia các sự kiện tại
+              đây
             </p>
           </div>
         </div>
@@ -65,10 +69,12 @@ const DetailClass = () => {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table ref={tableRef}  className="w-full border border-gray-200">
+        <table ref={tableRef} className="w-full border border-gray-200">
           <thead>
             <tr className="bg-orange-500 text-white">
               <th className="border px-4 py-2">#</th>
+              <th className="border px-4 py-2">MSSV</th>
+              <th className="border px-4 py-2">Họ và tên</th>
               <th className="border px-4 py-2">Lớp</th>
               <th className="border px-4 py-2">Event 1</th>
               <th className="border px-4 py-2">Event 2</th>
@@ -80,6 +86,8 @@ const DetailClass = () => {
             {tableData.map((student) => (
               <tr key={student.id} className="hover:bg-gray-100">
                 <td className="border px-4 py-2">{student.id}</td>
+                <td className="border px-4 py-2">{student.studentCode}</td>
+                <td className="border px-4 py-2">{student.studentName}</td>
                 <td className="border px-4 py-2">{student.className}</td>
                 {student.eventName.map((event) => (
                   <td key={event.id} className="border px-4 py-2">
@@ -94,18 +102,18 @@ const DetailClass = () => {
 
       {/* Export and Back buttons */}
       <div className="mt-4 flex items-center space-x-2">
-            <button
-              onClick={onDownload}
-              className="rounded-r-md bg-green-500 p-2 text-white hover:bg-green-700"
-            >
-              Xuất file excel
-            </button>
-          <button className="rounded-l-md bg-blue-500 p-2 text-white hover:bg-blue-700">
-            Quét lại danh sách
-          </button>
+        <button
+          onClick={onDownload}
+          className="rounded-r-md bg-green-500 p-2 text-white hover:bg-green-700"
+        >
+          Xuất file excel
+        </button>
+        <button className="rounded-l-md bg-blue-500 p-2 text-white hover:bg-blue-700">
+          Quét lại danh sách
+        </button>
       </div>
     </div>
   );
 };
 
-export default DetailClass;
+export default DetailReportStudent;

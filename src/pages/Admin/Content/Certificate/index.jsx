@@ -3,81 +3,71 @@ import { useEffect, useState } from "react";
 import AddCertificate from "./AddCertificate";
 import EditCertificate from "./EditCertidicate";
 import DeleteCertificate from "./DeleteCertificate";
+import { getCertifies } from "../../../../services/admin/certifyService";
+import { getEventById } from "../../../../services/admin/eventService";
+import { getStudentById } from "../../../../services/admin/studentService";
 
 const Certificate = () => {
-  const data = [
-    {
-      id: 1,
-      certCode: "1/CN2020CNTT",
-      eventName: "Sự kiện 1",
-      studentCode: "2180603432",
-      studentName: "Nguyễn Văn A",
-      dateCreated: dayjs("2024-10-10 10:00:00").format("DD/MM/YYYY HH:mm:ss"),
-    },
-    {
-      id: 2,
-      certCode: "2/CN2020CNTT",
-      eventName: "Sự kiện 2",
-      studentCode: "2180603433",
-      studentName: "Nguyễn Văn B",
-      dateCreated: dayjs("2024-10-10 10:00:00").format("DD/MM/YYYY HH:mm:ss"),
-    },
-    {
-      id: 3,
-      certCode: "3/CN2020CNTT",
-      eventName: "Sự kiện 3",
-      studentCode: "2180603434",
-      studentName: "Nguyễn Văn C",
-      dateCreated: dayjs("2024-10-10 10:00:00").format("DD/MM/YYYY HH:mm:ss"),
-    },
-    {
-      id: 4,
-      certCode: "4/CN2020CNTT",
-      eventName: "Sự kiện 4",
-      studentCode: "2180603435",
-      studentName: "Nguyễn Văn D",
-      dateCreated: dayjs("2024-10-10 10:00:00").format("DD/MM/YYYY HH:mm:ss"),
-    },
-    {
-      id: 5,
-      certCode: "5/CN2020CNTT",
-      eventName: "Sự kiện 5",
-      studentCode: "2180603436",
-      studentName: "Nguyễn Văn E",
-      dateCreated: dayjs("2024-10-10 10:00:00").format("DD/MM/YYYY HH:mm:ss"),
-    },
-  ];
-
+  const [data, setData] = useState([]); // Bao gồm 	Mã chứng nhận (serialNumber và yearCode của event)	Tên sự kiện	Mã sinh viên	Tên sinh viên	Ngày tạo
   const [tableData, setTableData] = useState([]);
   const [quantity, setQuantity] = useState(10); // Số bản ghi trên mỗi trang
   const [page, setPage] = useState(1); // Trang hiện tại
   const [totalPage, setTotalPage] = useState(1); // Tổng số trang
   const [search, setSearch] = useState(""); // Từ khóa tìm kiếm
   const [showAddCertificate, setShowAddCertificate] = useState(false);
-  const [showEditCertificate, setShowEditCertificate] = useState(false);
-  const [showDeleteCertificate, setShowDeleteCertificate] = useState(false);
+  const [CefIdDelete, setCefIdDelete] = useState("");
+  const [CefIdEdit, setCefIdEdit] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const certifies = await getCertifies();
+      setData([]);
+      const certifyPromises = certifies.map(async (certify) => {
+        const student = await getStudentById(certify.studentId);
+
+        if (certify.eventId) {
+          const event = await getEventById(certify.eventId);
+          return {
+            ...certify,
+            eventName: event.name,
+            cefCode: `${certify.serialNumber}/CN${event.yearCode}CNTT`,
+            studentCode: student.studentCode,
+            studentName: student.fullname,
+          };
+        } else {
+          return {
+            ...certify,
+            eventName: certify.cefTitle,
+            cefCode: `${certify.serialNumber}/CN${dayjs(certify.dateCreated).format("YY")}CNTT`,
+            studentCode: student.studentCode,
+            studentName: student.fullname,
+          };
+        }
+      });
+
+      const results = await Promise.all(certifyPromises);
+      setData(results);
+    };
+    fetchData();
+  }, [showAddCertificate, CefIdEdit, CefIdDelete]);
 
   // Xử lý phân trang và tìm kiếm
   useEffect(() => {
-    // Lọc theo từ khóa
     const filteredData = data.filter(
       (item) =>
         item.studentCode.toLowerCase().includes(search.toLowerCase()) ||
         item.studentName.toLowerCase().includes(search.toLowerCase()) ||
-        item.certCode.toLowerCase().includes(search.toLowerCase()) ||
+        item.cefCode.toLowerCase().includes(search.toLowerCase()) ||
         item.eventName.toLowerCase().includes(search.toLowerCase()),
     );
 
-    // Tính tổng số trang
     const pages = Math.ceil(filteredData.length / quantity);
     setTotalPage(pages);
 
-    // Lấy dữ liệu trang hiện tại
     const startIndex = (page - 1) * quantity;
     const currentData = filteredData.slice(startIndex, startIndex + quantity);
     setTableData(currentData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quantity, page, search]);
+  }, [quantity, page, search, data]);
 
   // Xử lý chuyển trang
   const handleNextPage = () => {
@@ -96,20 +86,20 @@ const Certificate = () => {
     setShowAddCertificate(false);
   };
 
-  const handleEditCertificate = () => {
-    setShowEditCertificate(true);
+  const handleEditCertificate = (cefId) => {
+    setCefIdEdit(cefId);
   };
 
   const handleCloseEditCertificate = () => {
-    setShowEditCertificate(false);
+    setCefIdEdit("");
   };
 
-  const handleDeleteCertificate = () => {
-    setShowDeleteCertificate(true);
+  const handleDeleteCertificate = (cefId) => {
+    setCefIdDelete(cefId);
   };
 
   const handleCloseDeleteCertificate = () => {
-    setShowDeleteCertificate(false);
+    setCefIdDelete("");
   };
 
   return (
@@ -176,7 +166,7 @@ const Certificate = () => {
         <table className="mt-4 w-full">
           <thead>
             <tr>
-              <th className="text-left">#</th>
+              <th className="cursor-col-resize text-left">#</th>
               <th className="text-left">Mã chứng nhận</th>
               <th className="text-left">Tên sự kiện</th>
               <th className="text-left">Mã sinh viên</th>
@@ -188,11 +178,13 @@ const Certificate = () => {
           <tbody>
             {tableData.map((item) => (
               <tr
-                key={item.id}
+                key={item._id}
                 className="border-y-2 border-gray-200 hover:bg-gray-100"
               >
-                <td>{item.id}</td>
-                <td>{item.certCode}</td>
+                <td className="max-w-10 overflow-hidden text-ellipsis whitespace-nowrap">
+                  {item._id}
+                </td>
+                <td>{item.cefCode}</td>
                 <td>{item.eventName}</td>
                 <td>{item.studentCode}</td>
                 <td>{item.studentName}</td>
@@ -201,7 +193,7 @@ const Certificate = () => {
                 </td>
                 <td>
                   <button
-                    onClick={handleEditCertificate}
+                    onClick={() => handleEditCertificate(item._id)}
                     className="rounded-md bg-blue-500 p-1 text-white transition-all duration-300 ease-in-out hover:bg-blue-700"
                   >
                     <svg
@@ -220,7 +212,7 @@ const Certificate = () => {
                     </svg>
                   </button>
                   <button
-                    onClick={handleDeleteCertificate}
+                    onClick={() => handleDeleteCertificate(item._id)}
                     className="ml-2 rounded-md bg-red-500 p-1 text-white transition-all duration-300 ease-in-out hover:bg-red-700"
                   >
                     <svg
@@ -268,11 +260,14 @@ const Certificate = () => {
       {showAddCertificate && (
         <AddCertificate onClose={handleCloseAddCertificate} />
       )}
-      {showEditCertificate && (
-        <EditCertificate onClose={handleCloseEditCertificate} />
+      {CefIdEdit && (
+        <EditCertificate onClose={handleCloseEditCertificate} id={CefIdEdit} />
       )}
-      {showDeleteCertificate && (
-        <DeleteCertificate onClose={handleCloseDeleteCertificate} />
+      {CefIdDelete && (
+        <DeleteCertificate
+          onClose={handleCloseDeleteCertificate}
+          id={CefIdDelete}
+        />
       )}
     </div>
   );
