@@ -1,30 +1,86 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getTopics } from "../../../../../services/admin/topicService";
+import { createEvent } from "../../../../../services/admin/eventService";
+import { getCefTemplates } from "../../../../../services/admin/cefTemplateService";
 
 // eslint-disable-next-line react/prop-types
 const AddEvent = ({ onClose }) => {
-  const topics = [
-    { id: 1, name: "Chủ đề 1" },
-    { id: 2, name: "Chủ đề 2" },
-    { id: 3, name: "Chủ đề 3" },
-  ];
-
-  const cerLayouts = [
-    { id: 1, name: "Layout 1" },
-    { id: 2, name: "Layout 2" },
-    { id: 3, name: "Layout 3" },
-  ];
-
+  const [cerLayouts, setCerLayouts] = useState([]);
+  const [topics, setTopics] = useState([]);
+  const [name, setName] = useState("");
+  const [hostBy, setHostBy] = useState("");
+  // const [templateId, setTemplateId] = useState("");
+  const [date, setDate] = useState("");
+  const [location, setLocation] = useState("");
+  const [allowCheckin, setAllowCheckin] = useState(false);
+  const [yearCode, setYearCode] = useState("");
+  const [allowCertify, setAllowCertify] = useState(false);
   const [showTimeLimit, setShowTimeLimit] = useState(false);
+  const [checkinStart, setCheckinStart] = useState("");
+  const [checkinEnd, setCheckinEnd] = useState("");
+  const [selectedTopics, setSelectedTopics] = useState([]);
+  const [checkinLimitTime, setCheckinLimitTime] = useState(false);
+  const [error, setError] = useState("");
+  const [cefLayoutPicker, setCefLayoutPicker] = useState({});
 
   const handleShowTimeLimit = () => {
+    setCheckinLimitTime(!checkinLimitTime);
     setShowTimeLimit(!showTimeLimit);
+  };
+
+  useEffect(() => {
+    const fetchTopics = async () => {
+      const topics = await getTopics();
+      setTopics(topics);
+    };
+    fetchTopics();
+    const fetchCefTemplates = async () => {
+      const cefTemplates = await getCefTemplates();
+      setCerLayouts(cefTemplates);
+    };
+    fetchCefTemplates();
+  }, []);
+
+  const handleCreateEvent = async () => {
+    try {
+      const event = {
+        name: name,
+        hostBy: hostBy,
+        date: date,
+        location: location,
+        allowCheckin: allowCheckin,
+        yearCode: yearCode,
+        allowCertify: allowCertify,
+        checkinStart: checkinStart,
+        checkinEnd: checkinEnd,
+        topics: selectedTopics,
+        checkinLimitTime: checkinLimitTime,
+        templateId: cefLayoutPicker,
+      };
+      const createdEvent = await createEvent(event);
+      console.log(createdEvent);
+      onClose();
+    } catch (error) {
+      setError(error);
+    }
+  };
+
+  const handleSelectedTopics = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions).map(
+      (option) => ({
+        topicId: option.value,
+        name: option.text,
+      }),
+    );
+    setSelectedTopics(selectedOptions);
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
       <div className="w-1/2 rounded-md bg-white p-6 shadow-md">
         <h1 className="text-2xl font-semibold">Tạo mới sự kiện</h1>
-        <form className="mt-4">
+        <div className="mt-4">
+          {error && <p className="text-red-500">{error}</p>}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
               Tên sự kiện
@@ -33,6 +89,7 @@ const AddEvent = ({ onClose }) => {
               type="text"
               className="w-full rounded-md border-2 p-2"
               placeholder="Nhập tên sự kiện"
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
           {/* Đơn vị tổ chức  */}
@@ -44,6 +101,7 @@ const AddEvent = ({ onClose }) => {
               type="text"
               className="w-full rounded-md border-2 p-2"
               placeholder="Nhập đơn vị tổ chức"
+              onChange={(e) => setHostBy(e.target.value)}
             />
           </div>
           {/* Chủ đề sự kiện (select có thể chọn nhiều chủ đề 1 lúc)  */}
@@ -51,9 +109,13 @@ const AddEvent = ({ onClose }) => {
             <label className="block text-sm font-medium text-gray-700">
               Chủ đề sự kiện
             </label>
-            <select className="w-full rounded-md border-2 p-2" multiple>
+            <select
+              className="w-full rounded-md border-2 p-2"
+              multiple
+              onChange={handleSelectedTopics}
+            >
               {topics.map((topic) => (
-                <option key={topic.id} value={topic.id}>
+                <option key={topic._id} value={topic._id}>
                   {topic.name}
                 </option>
               ))}
@@ -68,6 +130,7 @@ const AddEvent = ({ onClose }) => {
               <input
                 type="datetime-local"
                 className="w-full rounded-md border-2 p-2"
+                onChange={(e) => setDate(e.target.value)}
               />
             </div>
             <div className="ml-2 w-1/2">
@@ -78,6 +141,7 @@ const AddEvent = ({ onClose }) => {
                 type="text"
                 className="w-full rounded-md border-2 p-2"
                 placeholder="Nhập địa điểm"
+                onChange={(e) => setLocation(e.target.value)}
               />
             </div>
           </div>
@@ -87,9 +151,20 @@ const AddEvent = ({ onClose }) => {
               <label className="block text-sm font-medium text-gray-700">
                 Mẫu xuất giấy chứng nhận
               </label>
-              <select className="w-full rounded-md border-2 p-2">
+              <select
+                value={cefLayoutPicker._id || ""}
+                onChange={(e) =>
+                  setCefLayoutPicker(
+                    cerLayouts.find((layout) => layout._id === e.target.value),
+                  )
+                }
+                className="w-full rounded-md border-2 p-2"
+              >
+                <option value="" disabled>
+                  Chọn mẫu
+                </option>
                 {cerLayouts.map((layout) => (
-                  <option key={layout.id} value={layout.id}>
+                  <option key={layout._id} value={layout._id}>
                     {layout.name}
                   </option>
                 ))}
@@ -103,19 +178,28 @@ const AddEvent = ({ onClose }) => {
                 type="number"
                 className="w-full rounded-md border-2 p-2"
                 placeholder="Nhập năm in phôi"
+                onChange={(e) => setYearCode(e.target.value)}
               />
             </div>
           </div>
           {/* Cho phép xuất giấy chứng nhận (checkbox) */}
           <div className="mb-2 flex items-center space-x-2">
-            <input type="checkbox" className="h-4 w-4" />
+            <input
+              type="checkbox"
+              className="h-4 w-4"
+              onChange={(e) => setAllowCertify(e.target.checked)}
+            />
             <label className="block text-sm font-medium text-gray-700">
               Cho phép xuất giấy chứng nhận
             </label>
           </div>
           {/* Cho phép checkin sự kiện này */}
           <div className="mb-2 flex items-center space-x-2">
-            <input type="checkbox" className="h-4 w-4" />
+            <input
+              type="checkbox"
+              className="h-4 w-4"
+              onChange={(e) => setAllowCheckin(e.target.checked)}
+            />
             <label className="block text-sm font-medium text-gray-700">
               Cho phép checkin sự kiện này
             </label>
@@ -141,6 +225,7 @@ const AddEvent = ({ onClose }) => {
                 <input
                   type="datetime-local"
                   className="w-full rounded-md border-2 p-2"
+                  onChange={(e) => setCheckinStart(e.target.value)}
                 />
               </div>
               <div className="ml-2 w-1/2">
@@ -150,6 +235,7 @@ const AddEvent = ({ onClose }) => {
                 <input
                   type="datetime-local"
                   className="w-full rounded-md border-2 p-2"
+                  onChange={(e) => setCheckinEnd(e.target.value)}
                 />
               </div>
             </div>
@@ -163,13 +249,13 @@ const AddEvent = ({ onClose }) => {
               Hủy
             </button>
             <button
-              type="submit"
               className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+              onClick={handleCreateEvent}
             >
               Lưu
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

@@ -6,8 +6,11 @@ import DeleteCertificate from "./DeleteCertificate";
 import { getCertifies } from "../../../../services/admin/certifyService";
 import { getEventById } from "../../../../services/admin/eventService";
 import { getStudentById } from "../../../../services/admin/studentService";
+import { useSearchParams } from "react-router-dom";
 
 const Certificate = () => {
+  const [searchParams] = useSearchParams();
+  const studentCode = searchParams.get("studentCode");
   const [data, setData] = useState([]); // Bao gồm 	Mã chứng nhận (serialNumber và yearCode của event)	Tên sự kiện	Mã sinh viên	Tên sinh viên	Ngày tạo
   const [tableData, setTableData] = useState([]);
   const [quantity, setQuantity] = useState(10); // Số bản ghi trên mỗi trang
@@ -17,6 +20,10 @@ const Certificate = () => {
   const [showAddCertificate, setShowAddCertificate] = useState(false);
   const [CefIdDelete, setCefIdDelete] = useState("");
   const [CefIdEdit, setCefIdEdit] = useState("");
+
+  useEffect(() => {
+    studentCode && setSearch(studentCode);
+  }, [studentCode]);
 
   useEffect(() => {
     const fetchData = async () => {

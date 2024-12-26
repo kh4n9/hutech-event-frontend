@@ -4,14 +4,13 @@ import {
   updateEvent,
 } from "../../../../../services/admin/eventService";
 import { getTopics } from "../../../../../services/admin/topicService";
+import { getCefTemplates } from "../../../../../services/admin/cefTemplateService";
+import { getTopicEventByEventId } from "../../../../../services/admin/topicEvent";
 
 // eslint-disable-next-line react/prop-types
 const EditEvent = ({ onClose, id }) => {
-  const cerLayouts = [
-    { _id: 1, name: "Layout 1" },
-    { _id: 2, name: "Layout 2" },
-    { _id: 3, name: "Layout 3" },
-  ];
+  const [cerLayouts, setCerLayouts] = useState([]);
+  const [cefLayoutPickerId, setCefLayoutPickerId] = useState("");
   const [topics, setTopics] = useState([]);
   const [name, setName] = useState("");
   const [hostBy, setHostBy] = useState("");
@@ -58,6 +57,7 @@ const EditEvent = ({ onClose, id }) => {
             event.checkinEnd ? event.checkinEnd.substring(0, 16) : "",
           );
           setSelectedTopics(event.topics || []);
+          setCefLayoutPickerId(event.templateId || ""); // Set template ID from event data
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -65,6 +65,12 @@ const EditEvent = ({ onClose, id }) => {
       }
     };
     fetchData();
+
+    const fetchCefTemplates = async () => {
+      const cefTemplates = await getCefTemplates();
+      setCerLayouts(cefTemplates);
+    };
+    fetchCefTemplates();
   }, [id]);
 
   const handleUpdateEvent = async () => {
@@ -81,6 +87,7 @@ const EditEvent = ({ onClose, id }) => {
         checkinEnd: checkinEnd,
         topics: selectedTopics,
         checkinLimitTime: checkinLimitTime,
+        templateId: cefLayoutPickerId,
       };
       await updateEvent(id, event);
       onClose();
@@ -102,7 +109,7 @@ const EditEvent = ({ onClose, id }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
+    <div className="fixed inset-0 flex items-center justify-center overflow-auto bg-gray-500 bg-opacity-50">
       <div className="w-1/2 rounded-md bg-white p-6 shadow-md">
         <h1 className="text-2xl font-semibold">Chỉnh sửa sự kiện</h1>
         <div className="mt-4">
@@ -140,7 +147,7 @@ const EditEvent = ({ onClose, id }) => {
             <select
               className="w-full rounded-md border-2 p-2"
               multiple
-              value={selectedTopics?.map((topic) => topic.topicId) || []}
+              value={selectedTopics.map((topic) => topic.topicId)}
               onChange={handleSelectedTopics}
             >
               {Array.isArray(topics) &&
@@ -183,7 +190,11 @@ const EditEvent = ({ onClose, id }) => {
               <label className="block text-sm font-medium text-gray-700">
                 Mẫu xuất giấy chứng nhận
               </label>
-              <select className="w-full rounded-md border-2 p-2">
+              <select
+                value={cefLayoutPickerId}
+                onChange={(e) => setCefLayoutPickerId(e.target.value)}
+                className="w-full rounded-md border-2 p-2"
+              >
                 {cerLayouts.map((layout) => (
                   <option key={layout._id} value={layout._id}>
                     {layout.name}

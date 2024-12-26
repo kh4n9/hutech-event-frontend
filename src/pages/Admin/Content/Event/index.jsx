@@ -53,7 +53,7 @@ const Event = () => {
     };
 
     fetchEvents();
-  }, [eventDeleteId, eventEditId, refresh]);
+  }, [eventDeleteId, eventEditId, refresh, showAddEvent]);
 
   // Xử lý phân trang và tìm kiếm
   useEffect(() => {

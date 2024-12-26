@@ -4,7 +4,6 @@ import {
 } from "../../../../../services/admin/certifyService";
 import {
   getStudentEventsByEventId,
-  getStudentEventsByStudentId,
   deleteStudentEvent,
 } from "../../../../../services/admin/studentEventService";
 
@@ -21,16 +20,11 @@ const DeleteCertificate = ({ onClose, id }) => {
     const studentEventsByEventId = await getStudentEventsByEventId(
       certify.eventId,
     );
-    const studentEventsByStudentId = await getStudentEventsByStudentId(
-      certify.studentId,
-    );
-    // nếu có tồn tại studentEventsByEventId trùng với studentEventsByStudentId thì xoá
-    const studentEvents = [
-      ...studentEventsByEventId,
-      ...studentEventsByStudentId,
-    ];
-    const studentEventsDelete = studentEvents.filter(
-      (studentEvent) => studentEvent.eventId === certify.eventId,
+    // chỉ xoá studentEvent nào có eventId trùng với certify.eventId và studentId trùng với certify.studentId
+    const studentEventsDelete = studentEventsByEventId.filter(
+      (studentEvent) =>
+        studentEvent.eventId === certify.eventId &&
+        studentEvent.studentId === certify.studentId,
     );
     for (const studentEvent of studentEventsDelete) {
       await deleteStudentEvent(studentEvent._id);

@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import { getTopics } from "../../../../../services/admin/topicService";
 import { createEvent } from "../../../../../services/admin/eventService";
+import { getCefTemplates } from "../../../../../services/admin/cefTemplateService";
 
 // eslint-disable-next-line react/prop-types
 const AddEvent = ({ onClose }) => {
-  const cerLayouts = [
-    { _id: 1, name: "Layout 1" },
-    { _id: 2, name: "Layout 2" },
-    { _id: 3, name: "Layout 3" },
-  ];
+  const [cerLayouts, setCerLayouts] = useState([]);
   const [topics, setTopics] = useState([]);
   const [name, setName] = useState("");
   const [hostBy, setHostBy] = useState("");
@@ -24,6 +21,7 @@ const AddEvent = ({ onClose }) => {
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [checkinLimitTime, setCheckinLimitTime] = useState(false);
   const [error, setError] = useState("");
+  const [cefLayoutPicker, setCefLayoutPicker] = useState({});
 
   const handleShowTimeLimit = () => {
     setCheckinLimitTime(!checkinLimitTime);
@@ -36,6 +34,11 @@ const AddEvent = ({ onClose }) => {
       setTopics(topics);
     };
     fetchTopics();
+    const fetchCefTemplates = async () => {
+      const cefTemplates = await getCefTemplates();
+      setCerLayouts(cefTemplates);
+    };
+    fetchCefTemplates();
   }, []);
 
   const handleCreateEvent = async () => {
@@ -52,6 +55,7 @@ const AddEvent = ({ onClose }) => {
         checkinEnd: checkinEnd,
         topics: selectedTopics,
         checkinLimitTime: checkinLimitTime,
+        templateId: cefLayoutPicker,
       };
       const createdEvent = await createEvent(event);
       console.log(createdEvent);
@@ -147,7 +151,18 @@ const AddEvent = ({ onClose }) => {
               <label className="block text-sm font-medium text-gray-700">
                 Mẫu xuất giấy chứng nhận
               </label>
-              <select className="w-full rounded-md border-2 p-2">
+              <select
+                value={cefLayoutPicker._id || ""}
+                onChange={(e) =>
+                  setCefLayoutPicker(
+                    cerLayouts.find((layout) => layout._id === e.target.value),
+                  )
+                }
+                className="w-full rounded-md border-2 p-2"
+              >
+                <option value="" disabled>
+                  Chọn mẫu
+                </option>
                 {cerLayouts.map((layout) => (
                   <option key={layout._id} value={layout._id}>
                     {layout.name}
