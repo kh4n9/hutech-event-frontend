@@ -1,114 +1,158 @@
-import { toPng } from "html-to-image";
-import { useState, useEffect, useRef } from "react";
-import bgCert from "../../../../../assets/images/sample.png";
+/* eslint-disable react/prop-types */
+import { useEffect, useRef, useState } from "react";
+import { getCefTemplateById } from "../../../../../services/guest/cefTemplateService";
+import { getEventById } from "../../../../../services/guest/eventService";
+import { getStudentById } from "../../../../../services/guest/studentService";
+import dayjs from "dayjs";
+import "@fontsource/montserrat";
+import "@fontsource/open-sans";
+import "@fontsource/roboto";
 
-const CertInfo = ({ certId, setIsShowModal }) => {
-  const [generatedImage, setGeneratedImage] = useState(null);
-  const [scale, setScale] = useState(1); // Độ phân giải mặc định cao
-  const captureAreaRef = useRef(null); // Tham chiếu đến khu vực cần chụp
-
-  const handleCapture = async () => {
-    const captureArea = captureAreaRef.current;
-    if (!captureArea) {
-      alert("Không tìm thấy khu vực cần chụp!");
-      return;
-    }
-    try {
-      const dataUrl = await toPng(captureArea, {
-        quality: 1, // Chất lượng cao
-        pixelRatio: scale, // Tùy chỉnh độ phân giải
-      });
-
-      setGeneratedImage(dataUrl); // Lưu URL của ảnh để thay thế nội dung
-    } catch (error) {
-      console.error("Lỗi khi chụp ảnh:", error);
-    }
-  };
-
-  // Khi độ phân giải thay đổi, render lại ảnh
-  const handleChangeScale = (e) => {
-    setGeneratedImage(null); // Xóa ảnh cũ
-    const value = e.target.value;
-    setScale(value === "low" ? 1 : 3);
-  };
+const CertInfo = ({ certSelected, setIsShowModal }) => {
+  const [event, setEvent] = useState({});
+  const [student, setStudent] = useState({});
+  const [justImg, setJustImg] = useState(false);
+  const canvasRef = useRef(null);
+  const [imageSize, setImageSize] = useState({ width: 800, height: 600 });
+  const [loading, setLoading] = useState(false);
+  const [templateData, setTemplateData] = useState({});
+  const [img, setImg] = useState("");
+  const [quality, setQuality] = useState("high");
 
   useEffect(() => {
-    if (scale) {
-      handleCapture(); // Render lại ảnh khi thay đổi độ phân giải
-    }
-  }, [scale]); // Mỗi khi scale thay đổi, gọi lại handleCapture
+    if (!img) return;
+    const image = new Image();
+    image.src = img;
+    image.onload = () =>
+      setImageSize({ width: image.width, height: image.height });
+  }, [img]);
 
-  const handleDownload = () => {
-    if (!generatedImage) {
-      alert("Chưa có ảnh để tải xuống!");
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        if (!certSelected.eventId) {
+          setJustImg(true);
+          setLoading(false);
+          return;
+        }
+        const [eventData, studentData] = await Promise.all([
+          getEventById(certSelected.eventId),
+          getStudentById(certSelected.studentId),
+        ]);
+        setEvent(eventData);
+        setStudent(studentData);
+        const cefTemplate = await getCefTemplateById(eventData.templateId);
+        setTemplateData(cefTemplate.data);
+        setImg(cefTemplate.img);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [certSelected]);
+
+  useEffect(() => {
+    if (loading || !templateData || !img || !event.name || !student.fullname)
       return;
-    }
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    canvas.width = imageSize.width;
+    canvas.height = imageSize.height;
+    const background = new Image();
+    background.crossOrigin = "anonymous";
+    background.src = img;
+    background.onload = () => {
+      ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+      const renderText = (field, text, isItalic = false) => {
+        if (field?.IsDisplay) {
+          ctx.font = `${isItalic ? "italic " : ""}${field.fontSize}px ${field.Font}`;
+          ctx.fillStyle = field.Color;
+          ctx.textAlign = "center";
+          ctx.fillText(text, field.x, field.y);
+        }
+      };
+      renderText(templateData.EventTitle, event.name);
+      renderText(templateData.CefHost, event.hostBy);
+      renderText(templateData.StudentName, student.fullname);
+      renderText(templateData.StudentCode, student.studentCode);
+      renderText(templateData.CefNo, certSelected.serialNumber);
+      renderText(
+        templateData.CefDay,
+        dayjs(certSelected.dateCreated).format("DD"),
+        true,
+      );
+      renderText(
+        templateData.CefMonth,
+        dayjs(certSelected.dateCreated).format("MM"),
+        true,
+      );
+      renderText(
+        templateData.CefYear,
+        dayjs(certSelected.dateCreated).format("YY"),
+        true,
+      );
+    };
+  }, [loading, templateData, img, event, student, imageSize]);
 
+  const saveImage = () => {
+    const canvas = canvasRef.current;
+    const scale = quality === "high" ? 2 : 0.5; // Tăng kích thước canvas cho high quality
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+
+    // Đặt kích thước canvas tạm theo độ phân giải
+    tempCanvas.width = canvas.width * scale;
+    tempCanvas.height = canvas.height * scale;
+
+    // Vẽ lại canvas với độ phân giải mới
+    tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+
+    // Lưu hình ảnh từ canvas tạm
     const link = document.createElement("a");
-    link.download = "cert.png";
-    link.href = generatedImage;
+    link.download = `certificate_${certSelected.serialNumber}.png`;
+    link.href = tempCanvas.toDataURL("image/png");
     link.click();
   };
 
   return (
-    <div className="m-5">
+    <div className="m-16 rounded-md bg-white px-4 py-2 text-black">
       <button
-        className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+        className="rounded-md bg-blue-500 px-4 py-2 text-white"
         onClick={() => setIsShowModal(false)}
       >
         Trở lại
       </button>
-
-      <div ref={captureAreaRef} className="flex items-center justify-center">
-        {generatedImage ? (
-          // Hiển thị ảnh đã được chụp
-          <img src={generatedImage} alt="Giấy chứng nhận" className="w-800" />
+      <div className="flex justify-center">
+        {justImg ? (
+          <img
+            className="h-auto max-h-[500px] w-auto max-w-[700px]"
+            src={certSelected.cefUrl}
+            alt="cert"
+          />
         ) : (
-          // Hiển thị khu vực cần chụp ban đầu
-          <div
-            className="relative h-[517px] w-[720px] bg-cover"
-            style={{
-              backgroundImage: `url(${bgCert})`,
-            }}
-          >
-            <div className="absolute left-[58px] top-[180px] w-[598px]">
-              <div className="text-center text-[23px] text-blue-700">
-                Hoàng Minh Khang
-              </div>
-            </div>
-            <div className="absolute left-[58px] top-[215px] w-[598px]">
-              <div className="text-center text-[23px]">MSSV: 2180603432</div>
-            </div>
-            <div className="absolute left-[58px] top-[275px] w-[598px]">
-              <div className="text-center text-[23px]">
-                EVENT 1 EVENT 1 EVENT 1 EVENT 1 EVENT 1
-              </div>
-            </div>
-            <div className="absolute left-[550px] top-[348px]">
-              <div className="text-center text-[10px] italic">01</div>
-            </div>
-            <div className="absolute left-[590px] top-[348px]">
-              <div className="text-center text-[10px] italic">01</div>
-            </div>
-            <div className="absolute left-[638px] top-[348px]">
-              <div className="text-center text-[10px] italic">24</div>
-            </div>
-          </div>
+          <canvas
+            ref={canvasRef}
+            className="h-auto max-h-[500px] w-auto max-w-[700px]"
+          ></canvas>
         )}
       </div>
       <div className="mt-4 flex justify-center">
         <select
-          onChange={handleChangeScale}
-          className="rounded-md border border-gray-300 p-2"
+          value={quality}
+          onChange={(e) => setQuality(e.target.value)}
+          className="mr-4 rounded border p-2"
         >
-          <option value="low">Độ phân giải thấp</option>
-          <option value="high">Độ phân giải cao</option>
+          <option value="high">High Quality</option>
+          <option value="low">Low Quality</option>
         </select>
         <button
-          onClick={handleDownload}
-          className="ml-2 rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          className="rounded-md bg-green-500 px-4 py-2 text-white"
+          onClick={saveImage}
         >
-          Tải xuống
+          Save Image
         </button>
       </div>
     </div>

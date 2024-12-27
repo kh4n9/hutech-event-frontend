@@ -1,9 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ListCert from "./ListCert";
+import { getStudents } from "../../../services/guest/studentService";
 
 const Content = () => {
   const [studentCode, setStudentCode] = useState("");
   const [isValid, setIsValid] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [student, setStudent] = useState({});
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      const students = await getStudents();
+      setStudents(students);
+    };
+    fetchStudents();
+  }, []);
 
   const handleSearch = () => {
     // nếu studentCode không đủ điều kiện (không phải là một chuỗi chứa số, ít hơn 10 hoặc nhiều hơn 10 lý tự) thì thông báo lỗi
@@ -12,13 +23,23 @@ const Content = () => {
       setIsValid(false);
       return;
     }
+    // kiểm tra mã số sinh viên có tồn tại trong hệ thống không
+    const student = students.find(
+      (student) => student.studentCode === studentCode,
+    );
+    if (!student) {
+      alert("Mã số sinh viên không tồn tại");
+      setIsValid(false);
+      return;
+    }
+    setStudent(student);
     setIsValid(true);
   };
 
   return (
     <div className="flex-grow">
       {isValid ? (
-        <ListCert studentCode={studentCode} setIsValid={setIsValid} />
+        <ListCert student={student} setIsValid={setIsValid} />
       ) : (
         <>
           <div className="flex justify-center">

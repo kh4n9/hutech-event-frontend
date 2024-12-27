@@ -1,109 +1,199 @@
 import { useEffect, useRef, useState } from "react";
 import { useDownloadExcel } from "react-export-table-to-excel";
 import dayjs from "dayjs";
+import {
+  getStudentEventsByEventId,
+  createStudentEvent,
+  updateStudentEvent,
+} from "../../../../services/colab/studentEventService";
+import { createCertify } from "../../../../services/colab/certifyService";
+import {
+  getStudentById,
+  getStudents,
+} from "../../../../services/colab/studentService";
+import {
+  getUserByToken,
+  getUserById,
+} from "../../../../services/colab/userService";
+import { useParams } from "react-router-dom";
+import { getEventById } from "../../../../services/colab/eventService";
 
 const DetailEvent = () => {
-  const data = [
-    {
-      id: 1,
-      studentCode: "2180603432",
-      studentName: "Hoàng Minh Khang",
-      className: "21DTHB1",
-      email: "mkhoangvip@gmail.com",
-      phone: "0123456789",
-      checkIn: dayjs("2021-10-10 10:00:00").format("YYYY-MM-DD HH:mm:ss"),
-      checkOut: dayjs("2021-10-10 10:00:00").format("YYYY-MM-DD HH:mm:ss"),
-      checkInBy: "admin",
-    },
-    {
-      id: 2,
-      studentCode: "2180603432",
-      studentName: "Hoàng Minh Khang",
-      className: "21DTHB1",
-      email: "mkhoangvip@gmail.com",
-      phone: "0123456789",
-      checkIn: dayjs("2021-10-10 10:00:00").format("YYYY-MM-DD HH:mm:ss"),
-      checkOut: null,
-      checkInBy: "admin",
-    },
-    {
-      id: 3,
-      studentCode: "2180603432",
-      studentName: "Hoàng Minh Khang",
-      className: "21DTHB1",
-      email: "mkhoangvip@gmail.com",
-      phone: "0123456789",
-      checkIn: dayjs("2021-10-10 10:00:00").format("YYYY-MM-DD HH:mm:ss"),
-      checkOut: dayjs("2021-10-10 10:00:00").format("YYYY-MM-DD HH:mm:ss"),
-      checkInBy: "admin",
-    },
-    {
-      id: 4,
-      studentCode: "2180603432",
-      className: "21DTHB1",
-      studentName: "Hoàng Minh Khang",
-      email: "mkhoangvip@gmail.com",
-      phone: "0123456789",
-      checkIn: dayjs("2021-10-10 10:00:00").format("YYYY-MM-DD HH:mm:ss"),
-      checkOut: null,
-      checkInBy: "admin",
-    },
-    {
-      id: 5,
-      studentCode: "2180603432",
-      className: "21DTHB1",
-      studentName: "Hoàng Minh Khang",
-      email: "mkhoangvip@gmail.com",
-      phone: "0123456789",
-      checkIn: dayjs("2021-10-10 10:00:00").format("YYYY-MM-DD HH:mm:ss"),
-      checkOut: dayjs("2021-10-10 10:00:00").format("YYYY-MM-DD HH:mm:ss"),
-      checkInBy: "admin",
-    },
-  ];
-
+  const [data, setData] = useState([]);
   const [tableData, setTableData] = useState([]);
-  const [quantity, setQuantity] = useState(10); // Số bản ghi trên mỗi trang
-  const [page, setPage] = useState(1); // Trang hiện tại
-  const [totalPage, setTotalPage] = useState(1); // Tổng số trang
-  const [search, setSearch] = useState(""); // Từ khóa tìm kiếm
-  const [mode, setMode] = useState("check-in"); // Chế độ xem, sửa, thêm mới
+  const [quantity, setQuantity] = useState(10);
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [mode, setMode] = useState("check-in");
+  const [currentUser, setCurrentUser] = useState({});
   const tableRef = useRef(null);
+  const [mssv, setMssv] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [totalCheckin, setTotalCheckin] = useState(0);
+  const [totalCheckout, setTotalCheckout] = useState(0);
+  const [event, setEvent] = useState({});
+  const { id } = useParams();
 
-  // download excel
+  useEffect(() => {
+    const fetchData = async () => {
+      const user = await getUserByToken();
+      setCurrentUser(user);
+      const studentEventsByEventId = await getStudentEventsByEventId(id);
+
+      const response = await Promise.all(
+        studentEventsByEventId.map(async (studentEvent) => {
+          const student = await getStudentById(studentEvent.studentId);
+          const user = await getUserById(studentEvent.userId);
+          return {
+            ...student,
+            _id: studentEvent._id,
+            checkIn: studentEvent.checkinTime,
+            checkOut: studentEvent.checkoutTime,
+            checkInBy: user.fullname,
+          };
+        }),
+      );
+
+      setData(response);
+      console.log(response);
+      setTotalCheckin(response.filter((item) => item.checkIn).length);
+      setTotalCheckout(response.filter((item) => item.checkOut).length);
+    };
+    fetchData();
+
+    const fetchEvent = async () => {
+      const event = await getEventById(id);
+      setEvent(event);
+    };
+    fetchEvent();
+  }, [id, loading]);
+
   const { onDownload } = useDownloadExcel({
     currentTableRef: tableRef.current,
-    filename: "Event 1",
+    filename: event.name,
     sheet: "Users",
   });
 
-  // Xử lý phân trang và tìm kiếm
   useEffect(() => {
-    // Lọc theo từ khóa
     const filteredData = data.filter(
       (item) =>
-        item.studentName.toLowerCase().includes(search.toLowerCase()) ||
-        item.studentCode.toLowerCase().includes(search.toLowerCase()) ||
-        item.className.toLowerCase().includes(search.toLowerCase()),
+        (item.studentName && item.studentName.includes(search)) ||
+        (item.studentCode && item.studentCode.includes(search)) ||
+        (item.className && item.className.includes(search)),
     );
 
-    // Tính tổng số trang
     const pages = Math.ceil(filteredData.length / quantity);
     setTotalPage(pages);
 
-    // Lấy dữ liệu trang hiện tại
     const startIndex = (page - 1) * quantity;
     const currentData = filteredData.slice(startIndex, startIndex + quantity);
     setTableData(currentData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quantity, page, search, mode]);
+  }, [quantity, page, search, mode, data]);
 
-  // Xử lý chuyển trang
   const handleNextPage = () => {
     if (page < totalPage) setPage(page + 1);
   };
 
   const handlePreviousPage = () => {
     if (page > 1) setPage(page - 1);
+  };
+
+  const handleCheckIn = async () => {
+    try {
+      setLoading(true);
+      const event = await getEventById(id);
+      if (event.checkinLimitTime) {
+        const currentTime = dayjs();
+        const checkinStart = dayjs(event.checkinStart);
+        const checkinEnd = dayjs(event.checkinEnd);
+        if (
+          currentTime.isBefore(checkinStart) ||
+          currentTime.isAfter(checkinEnd)
+        ) {
+          setError("Thời gian check-in không hợp lệ");
+          return;
+        }
+      }
+      const students = await getStudents();
+      const student = students.find((student) => student.studentCode === mssv);
+      if (!student) {
+        setError("Sinh viên không tồn tại");
+        return;
+      }
+      await createStudentEvent({
+        userId: currentUser._id,
+        studentId: student._id,
+        eventId: id,
+      });
+      await createCertify({
+        studentId: student._id,
+        eventId: id,
+      });
+      setError("");
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCheckOut = async () => {
+    try {
+      setLoading(true);
+      const students = await getStudents();
+      const student = students.find((student) => student.studentCode === mssv);
+      if (!student) {
+        setError("Sinh viên không tồn tại");
+        return;
+      }
+      const studentEvents = await getStudentEventsByEventId(id);
+      console.log(studentEvents);
+      const studentEvent = studentEvents.find(
+        (item) => item.studentId === student._id,
+      );
+      if (!studentEvent) {
+        setError("Sinh viên chưa check-in");
+        return;
+      }
+      console.log(studentEvent);
+      await updateStudentEvent(studentEvent._id, {
+        checkoutTime: dayjs().toISOString(),
+      });
+      setError("");
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveCheckOut = async (id) => {
+    try {
+      console.log(id);
+      setLoading(true);
+      await updateStudentEvent(id, {
+        checkoutTime: null,
+      });
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCheckout2 = async (id) => {
+    try {
+      setLoading(true);
+      await updateStudentEvent(id, {
+        checkoutTime: dayjs().toISOString(),
+      });
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -126,65 +216,50 @@ const DetailEvent = () => {
           </svg>
 
           <div>
-            <h1 className="text-2xl font-semibold">Event 1</h1>
+            <h1 className="text-2xl font-semibold">{event.name}</h1>
             <p className="text-gray-500">Danh sách check-in, check-out</p>
           </div>
         </div>
-        {mode === "check-in" && (
-          <div className="flex space-x-0">
-            <button
-              onClick={() => setMode("check-out")}
-              className="rounded-l-md bg-gray-400 px-4 py-2 shadow-md transition-all duration-300 ease-in-out hover:bg-blue-200"
-            >
-              Chế độ checkin
-            </button>
-            <button
-              onClick={() => setMode("check-out")}
-              className="rounded-r-md bg-white px-4 py-2 shadow-md transition-all duration-300 ease-in-out hover:bg-blue-200"
-            >
-              Chế độ checkout
-            </button>
-          </div>
-        )}
-        {mode === "check-out" && (
-          <div className="flex space-x-0 transition-all">
-            <button
-              onClick={() => setMode("check-in")}
-              className="rounded-l-md bg-white px-4 py-2 shadow-md transition-all duration-300 ease-in-out hover:bg-blue-200"
-            >
-              Chế độ checkin
-            </button>
-            <button
-              onClick={() => setMode("check-in")}
-              className="rounded-r-md bg-gray-400 px-4 py-2 shadow-md transition-all duration-300 ease-in-out hover:bg-blue-200"
-            >
-              Chế độ checkout
-            </button>
-          </div>
-        )}
+        {error && <p className="text-red-500">{error}</p>}
+        <div className="flex space-x-0">
+          <button
+            onClick={() => setMode("check-in")}
+            className={`rounded-l-md px-4 py-2 shadow-md transition-all duration-300 ease-in-out ${
+              mode === "check-in" ? "bg-gray-400" : "bg-white hover:bg-blue-200"
+            }`}
+          >
+            Chế độ checkin
+          </button>
+          <button
+            onClick={() => setMode("check-out")}
+            className={`rounded-r-md px-4 py-2 shadow-md transition-all duration-300 ease-in-out ${
+              mode === "check-out"
+                ? "bg-gray-400"
+                : "bg-white hover:bg-blue-200"
+            }`}
+          >
+            Chế độ checkout
+          </button>
+        </div>
       </div>
 
       <div className="my-5 flex space-x-0 rounded-md text-lg shadow-md">
-        {mode === "check-in" && (
-          <input
-            type="text"
-            placeholder="Nhập mã sinh viên để check-in"
-            className="w-full rounded-l-md p-2"
-          />
-        )}
-        {mode === "check-out" && (
-          <input
-            type="text"
-            placeholder="Nhập mã sinh viên để check-out"
-            className="w-full rounded-l-md p-2"
-          />
-        )}
-
+        <input
+          value={mssv}
+          onChange={(e) => setMssv(e.target.value)}
+          type="text"
+          placeholder={`Nhập mã sinh viên để ${mode === "check-in" ? "check-in" : "check-out"}`}
+          className="w-full rounded-l-md p-2"
+        />
         <div className="w-fit border-x-2 bg-white p-2 hover:bg-blue-200">
-          <button className="">Nhập</button>
+          <button
+            onClick={mode === "check-in" ? handleCheckIn : handleCheckOut}
+          >
+            Nhập
+          </button>
         </div>
         <div className="min-w-fit rounded-r-md bg-white p-2 hover:bg-blue-200">
-          <button className="">Nhập hàng loạt</button>
+          <button>Nhập hàng loạt</button>
         </div>
       </div>
 
@@ -196,7 +271,9 @@ const DetailEvent = () => {
             </h1>
             <span className="text-gray-500">Số người đã check-in</span>
           </div>
-          <h1 className="text-4xl font-semibold text-gray-700">100</h1>
+          <h1 className="text-4xl font-semibold text-gray-700">
+            {totalCheckin}
+          </h1>
         </div>
         <div className="flex flex-grow items-center justify-between rounded-md bg-white p-2 shadow-md">
           <div>
@@ -205,7 +282,9 @@ const DetailEvent = () => {
             </h1>
             <span className="text-gray-500">Tổng số người đã check-out</span>
           </div>
-          <h1 className="text-4xl font-semibold text-gray-700">100</h1>
+          <h1 className="text-4xl font-semibold text-gray-700">
+            {totalCheckout}
+          </h1>
         </div>
       </div>
 
@@ -245,6 +324,7 @@ const DetailEvent = () => {
             <span className="text-gray-500">bản ghi</span>
           </div>
           <input
+            value={search}
             onChange={(e) => setSearch(e.target.value)}
             type="text"
             placeholder="Tìm kiếm chủ đề"
@@ -270,11 +350,13 @@ const DetailEvent = () => {
             <tbody>
               {tableData.map((item) => (
                 <tr
-                  key={item.id}
+                  key={item._id}
                   className="border-y-2 border-gray-200 hover:bg-gray-100"
                 >
-                  <td className="p-2">{item.id}</td>
-                  <td className="p-2">{item.studentName}</td>
+                  <td className="max-w-2 overflow-hidden text-ellipsis whitespace-nowrap p-2">
+                    {item._id}
+                  </td>
+                  <td className="p-2">{item.fullname}</td>
                   <td className="p-2">{item.studentCode}</td>
                   <td className="p-2">{item.className}</td>
                   <td className="p-2">{item.email}</td>
@@ -285,16 +367,22 @@ const DetailEvent = () => {
                   <td className="p-2">
                     {item.checkOut
                       ? dayjs(item.checkOut).format("DD/MM/YYYY lúc HH:mm:ss")
-                      : ""}
+                      : "Chưa checkout"}
                   </td>
                   <td className="p-2">{item.checkInBy}</td>
                   <td className="p-2">
                     {!item.checkOut ? (
-                      <button className="rounded-md bg-green-500 p-2 text-white hover:bg-green-700">
+                      <button
+                        onClick={() => handleCheckout2(item._id)}
+                        className="rounded-md bg-green-500 p-2 text-white hover:bg-green-700"
+                      >
                         Checkout
                       </button>
                     ) : (
-                      <button className="rounded-md bg-red-500 p-2 text-white hover:bg-red-700">
+                      <button
+                        onClick={() => handleRemoveCheckOut(item._id)}
+                        className="rounded-md bg-red-500 p-2 text-white hover:bg-red-700"
+                      >
                         Huỷ checkout
                       </button>
                     )}

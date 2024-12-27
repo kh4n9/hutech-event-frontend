@@ -72,10 +72,26 @@ const deleteStudentEvent = async (id) => {
   }
 };
 
+const updateStudentEvent = async (id, studentEvent) => {
+  try {
+    const response = await axios.put(
+      `http://localhost:3000/api/admin/student-events/${id}`,
+      studentEvent,
+      {
+        headers: authHeader(),
+      },
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
+
 export {
   getStudentEvents,
   getStudentEventsByStudentId,
   getStudentEventsByEventId,
   createStudentEvent,
   deleteStudentEvent,
+  updateStudentEvent,
 };

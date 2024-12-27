@@ -18,7 +18,7 @@ const Content = ({ content }) => {
       {content === "monitor" && <Monitor />}
       {content === "certificate" && <Certificate />}
       {content === "report-student" && <ReportStudent />}
-      {content === "report-motitor" && <ReportMonitor />}
+      {content === "report-monitor" && <ReportMonitor />}
       {content === "report-class" && <ReportClass />}
     </div>
   );

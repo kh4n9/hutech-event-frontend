@@ -3,81 +3,78 @@ import { useEffect, useState } from "react";
 import AddCertificate from "./AddCertificate";
 import EditCertificate from "./EditCertidicate";
 import DeleteCertificate from "./DeleteCertificate";
+import { getCertifies } from "../../../../services/colab/certifyService";
+import { getEventById } from "../../../../services/colab/eventService";
+import { getStudentById } from "../../../../services/colab/studentService";
+import { useSearchParams } from "react-router-dom";
 
 const Certificate = () => {
-  const data = [
-    {
-      id: 1,
-      certCode: "1/CN2020CNTT",
-      eventName: "Sự kiện 1",
-      studentCode: "2180603432",
-      studentName: "Nguyễn Văn A",
-      dateCreated: dayjs("2024-10-10 10:00:00").format("DD/MM/YYYY HH:mm:ss"),
-    },
-    {
-      id: 2,
-      certCode: "2/CN2020CNTT",
-      eventName: "Sự kiện 2",
-      studentCode: "2180603433",
-      studentName: "Nguyễn Văn B",
-      dateCreated: dayjs("2024-10-10 10:00:00").format("DD/MM/YYYY HH:mm:ss"),
-    },
-    {
-      id: 3,
-      certCode: "3/CN2020CNTT",
-      eventName: "Sự kiện 3",
-      studentCode: "2180603434",
-      studentName: "Nguyễn Văn C",
-      dateCreated: dayjs("2024-10-10 10:00:00").format("DD/MM/YYYY HH:mm:ss"),
-    },
-    {
-      id: 4,
-      certCode: "4/CN2020CNTT",
-      eventName: "Sự kiện 4",
-      studentCode: "2180603435",
-      studentName: "Nguyễn Văn D",
-      dateCreated: dayjs("2024-10-10 10:00:00").format("DD/MM/YYYY HH:mm:ss"),
-    },
-    {
-      id: 5,
-      certCode: "5/CN2020CNTT",
-      eventName: "Sự kiện 5",
-      studentCode: "2180603436",
-      studentName: "Nguyễn Văn E",
-      dateCreated: dayjs("2024-10-10 10:00:00").format("DD/MM/YYYY HH:mm:ss"),
-    },
-  ];
-
+  const [searchParams] = useSearchParams();
+  const studentCode = searchParams.get("studentCode");
+  const [data, setData] = useState([]); // Bao gồm 	Mã chứng nhận (serialNumber và yearCode của event)	Tên sự kiện	Mã sinh viên	Tên sinh viên	Ngày tạo
   const [tableData, setTableData] = useState([]);
   const [quantity, setQuantity] = useState(10); // Số bản ghi trên mỗi trang
   const [page, setPage] = useState(1); // Trang hiện tại
   const [totalPage, setTotalPage] = useState(1); // Tổng số trang
   const [search, setSearch] = useState(""); // Từ khóa tìm kiếm
   const [showAddCertificate, setShowAddCertificate] = useState(false);
-  const [showEditCertificate, setShowEditCertificate] = useState(false);
-  const [showDeleteCertificate, setShowDeleteCertificate] = useState(false);
+  const [CefIdDelete, setCefIdDelete] = useState("");
+  const [CefIdEdit, setCefIdEdit] = useState("");
+
+  useEffect(() => {
+    studentCode && setSearch(studentCode);
+  }, [studentCode]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const certifies = await getCertifies();
+      setData([]);
+      const certifyPromises = certifies.map(async (certify) => {
+        const student = await getStudentById(certify.studentId);
+
+        if (certify.eventId) {
+          const event = await getEventById(certify.eventId);
+          return {
+            ...certify,
+            eventName: event.name,
+            cefCode: `${certify.serialNumber}/CN${event.yearCode}CNTT`,
+            studentCode: student.studentCode,
+            studentName: student.fullname,
+          };
+        } else {
+          return {
+            ...certify,
+            eventName: certify.cefTitle,
+            cefCode: `${certify.serialNumber}/CN${dayjs(certify.dateCreated).format("YY")}CNTT`,
+            studentCode: student.studentCode,
+            studentName: student.fullname,
+          };
+        }
+      });
+
+      const results = await Promise.all(certifyPromises);
+      setData(results);
+    };
+    fetchData();
+  }, [showAddCertificate, CefIdEdit, CefIdDelete]);
 
   // Xử lý phân trang và tìm kiếm
   useEffect(() => {
-    // Lọc theo từ khóa
     const filteredData = data.filter(
       (item) =>
         item.studentCode.toLowerCase().includes(search.toLowerCase()) ||
         item.studentName.toLowerCase().includes(search.toLowerCase()) ||
-        item.certCode.toLowerCase().includes(search.toLowerCase()) ||
+        item.cefCode.toLowerCase().includes(search.toLowerCase()) ||
         item.eventName.toLowerCase().includes(search.toLowerCase()),
     );
 
-    // Tính tổng số trang
     const pages = Math.ceil(filteredData.length / quantity);
     setTotalPage(pages);
 
-    // Lấy dữ liệu trang hiện tại
     const startIndex = (page - 1) * quantity;
     const currentData = filteredData.slice(startIndex, startIndex + quantity);
     setTableData(currentData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quantity, page, search]);
+  }, [quantity, page, search, data]);
 
   // Xử lý chuyển trang
   const handleNextPage = () => {
@@ -96,20 +93,20 @@ const Certificate = () => {
     setShowAddCertificate(false);
   };
 
-  const handleEditCertificate = () => {
-    setShowEditCertificate(true);
+  const handleEditCertificate = (cefId) => {
+    setCefIdEdit(cefId);
   };
 
   const handleCloseEditCertificate = () => {
-    setShowEditCertificate(false);
+    setCefIdEdit("");
   };
 
-  // const handleDeleteCertificate = () => {
-  //   setShowDeleteCertificate(true);
-  // };
+  const handleDeleteCertificate = (cefId) => {
+    setCefIdDelete(cefId);
+  };
 
   const handleCloseDeleteCertificate = () => {
-    setShowDeleteCertificate(false);
+    setCefIdDelete("");
   };
 
   return (
@@ -176,32 +173,34 @@ const Certificate = () => {
         <table className="mt-4 w-full">
           <thead>
             <tr>
-              <th className="text-left">#</th>
+              <th className="cursor-col-resize text-left">#</th>
               <th className="text-left">Mã chứng nhận</th>
               <th className="text-left">Tên sự kiện</th>
               <th className="text-left">Mã sinh viên</th>
               <th className="text-left">Tên sinh viên</th>
               <th className="text-left">Ngày tạo</th>
-              <th className="text-center">Hành động</th>
+              <th className="text-left">Hành động</th>
             </tr>
           </thead>
           <tbody>
             {tableData.map((item) => (
               <tr
-                key={item.id}
+                key={item._id}
                 className="border-y-2 border-gray-200 hover:bg-gray-100"
               >
-                <td>{item.id}</td>
-                <td>{item.certCode}</td>
+                <td className="max-w-10 overflow-hidden text-ellipsis whitespace-nowrap">
+                  {item._id}
+                </td>
+                <td>{item.cefCode}</td>
                 <td>{item.eventName}</td>
                 <td>{item.studentCode}</td>
                 <td>{item.studentName}</td>
                 <td>
                   {dayjs(item.dateCreated).format("DD/MM/YYYY lúc HH:mm:ss")}
                 </td>
-                <td className="px-4 py-2 text-center">
+                <td>
                   <button
-                    onClick={handleEditCertificate}
+                    onClick={() => handleEditCertificate(item._id)}
                     className="rounded-md bg-blue-500 p-1 text-white transition-all duration-300 ease-in-out hover:bg-blue-700"
                   >
                     <svg
@@ -219,8 +218,8 @@ const Certificate = () => {
                       />
                     </svg>
                   </button>
-                  {/* <button
-                    onClick={handleDeleteCertificate}
+                  <button
+                    onClick={() => handleDeleteCertificate(item._id)}
                     className="ml-2 rounded-md bg-red-500 p-1 text-white transition-all duration-300 ease-in-out hover:bg-red-700"
                   >
                     <svg
@@ -237,7 +236,7 @@ const Certificate = () => {
                         d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
                       />
                     </svg>
-                  </button> */}
+                  </button>
                 </td>
               </tr>
             ))}
@@ -268,11 +267,14 @@ const Certificate = () => {
       {showAddCertificate && (
         <AddCertificate onClose={handleCloseAddCertificate} />
       )}
-      {showEditCertificate && (
-        <EditCertificate onClose={handleCloseEditCertificate} />
+      {CefIdEdit && (
+        <EditCertificate onClose={handleCloseEditCertificate} id={CefIdEdit} />
       )}
-      {showDeleteCertificate && (
-        <DeleteCertificate onClose={handleCloseDeleteCertificate} />
+      {CefIdDelete && (
+        <DeleteCertificate
+          onClose={handleCloseDeleteCertificate}
+          id={CefIdDelete}
+        />
       )}
     </div>
   );

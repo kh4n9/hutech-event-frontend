@@ -1,9 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getCertifyById } from "../../../../../services/colab/certifyService";
+import { getStudentById } from "../../../../../services/colab/studentService";
 
 // eslint-disable-next-line react/prop-types
-const EditCertificate = ({ onClose }) => {
+const EditCertificate = ({ onClose, id }) => {
   const [modeUpload, setModeUpload] = useState("link");
   const [imageURL, setImageURL] = useState("");
+  const [cefTitle, setCefTitle] = useState("");
+  const [studentCode, setStudentCode] = useState("");
+
+  useEffect(() => {
+    const fetchCertify = async () => {
+      const certifies = await getCertifyById(id);
+      const student = await getStudentById(certifies.studentId);
+      setImageURL(certifies.cefUrl);
+      setCefTitle(certifies.cefTitle);
+      setStudentCode(student.studentCode);
+    };
+    fetchCertify();
+  }, [id]);
 
   const handleChangeModeUpload = (mode) => {
     setModeUpload(mode);
@@ -23,6 +38,8 @@ const EditCertificate = ({ onClose }) => {
                 type="text"
                 className="w-full rounded-md border-2 p-2"
                 placeholder="Nhập tên sự kiện"
+                value={cefTitle}
+                onChange={(e) => setCefTitle(e.target.value)}
               />
             </div>
             {/* Mã số sinh viên  */}
@@ -34,6 +51,8 @@ const EditCertificate = ({ onClose }) => {
                 type="text"
                 className="w-full rounded-md border-2 p-2"
                 placeholder="Nhập mã số sinh viên"
+                value={studentCode}
+                onChange={(e) => setStudentCode(e.target.value)}
               />
             </div>
             {/* Hình ảnh chứng nhận có thể nhập link hoặc tải file lên  */}
@@ -71,6 +90,7 @@ const EditCertificate = ({ onClose }) => {
                   className="mt-2 w-full rounded-md border-2 p-2"
                   placeholder="Nhập đường dẫn hình ảnh"
                   onChange={(e) => setImageURL(e.target.value)}
+                  value={imageURL}
                 />
               )}
               {modeUpload === "file" && (
