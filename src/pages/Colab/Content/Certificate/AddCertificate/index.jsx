@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { createCertify } from "../../../../../services/admin/certifyService";
-import { getStudents } from "../../../../../services/admin/studentService";
+import { createCertify } from "../../../../../services/colab/certifyService";
+import { getStudents } from "../../../../../services/colab/studentService";
 
 // eslint-disable-next-line react/prop-types
 const AddCerficate = ({ onClose }) => {

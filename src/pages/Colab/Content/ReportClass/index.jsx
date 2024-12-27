@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { getEvents } from "../../../../services/admin/eventService";
+import { getEvents } from "../../../../services/colab/eventService";
 import DetailReportClass from "./DetailReportClass";
 
 const ReportClass = () => {

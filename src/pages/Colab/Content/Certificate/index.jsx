@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import AddCertificate from "./AddCertificate";
 import EditCertificate from "./EditCertidicate";
 import DeleteCertificate from "./DeleteCertificate";
-import { getCertifies } from "../../../../services/admin/certifyService";
-import { getEventById } from "../../../../services/admin/eventService";
-import { getStudentById } from "../../../../services/admin/studentService";
+import { getCertifies } from "../../../../services/colab/certifyService";
+import { getEventById } from "../../../../services/colab/eventService";
+import { getStudentById } from "../../../../services/colab/studentService";
 import { useSearchParams } from "react-router-dom";
 
 const Certificate = () => {

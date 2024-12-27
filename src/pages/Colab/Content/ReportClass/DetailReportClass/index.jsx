@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useDownloadExcel } from "react-export-table-to-excel";
-import { getStudents } from "../../../../../services/admin/studentService";
-import { getStudentEventsByStudentId } from "../../../../../services/admin/studentEventService";
+import { getStudents } from "../../../../../services/colab/studentService";
+import { getStudentEventsByStudentId } from "../../../../../services/colab/studentEventService";
 
 // eslint-disable-next-line react/prop-types
 const DetailReportClass = ({ eventList, onClose }) => {

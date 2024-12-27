@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
 import {
   getStudentById,
   updateStudent,
-} from "../../../../../services/admin/studentService";
-import { getEventById } from "../../../../../services/admin/eventService";
-import { getStudentEventsByStudentId } from "../../../../../services/admin/studentEventService";
+} from "../../../../../services/colab/studentService";
+import { getEventById } from "../../../../../services/colab/eventService";
+import { getStudentEventsByStudentId } from "../../../../../services/colab/studentEventService";
 import dayjs from "dayjs";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -125,7 +125,7 @@ const EditStudent = ({ onClose, id }) => {
   };
 
   const handleToEvent = (eventId) => {
-    navigate(`/admin/event/${eventId}`);
+    navigate(`/colab/event/${eventId}`);
   };
 
   const filteredData = tableData
@@ -141,7 +141,7 @@ const EditStudent = ({ onClose, id }) => {
   );
 
   const handleToCefList = () => {
-    navigate("/admin/certificate?studentCode=" + student.studentCode);
+    navigate("/colab/certificate?studentCode=" + student.studentCode);
   };
 
   return (

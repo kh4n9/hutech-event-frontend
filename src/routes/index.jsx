@@ -3,6 +3,7 @@ import Home from "../pages/Home";
 import Admin from "../pages/Admin";
 import Login from "../pages/Login";
 import Colab from "../pages/Colab";
+import EventRegistration from "../pages/EventRegistration";
 
 const AppRoutes = () => {
   return (
@@ -86,6 +87,10 @@ const AppRoutes = () => {
         />
         {/* Đăng nhập */}
         <Route path="/login" element={<Login />} />
+
+        {/* eventRegistration */}
+        <Route path="/eventRegistration/:id" element={<EventRegistration />} />
+
         {/* 404 */}
         <Route path="*" element={<h1>404 Not Found</h1>} />
       </Routes>

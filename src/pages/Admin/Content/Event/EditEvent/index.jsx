@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   getEventById,
   updateEvent,
 } from "../../../../../services/admin/eventService";
 import { getTopics } from "../../../../../services/admin/topicService";
 import { getCefTemplates } from "../../../../../services/admin/cefTemplateService";
-import { getTopicEventByEventId } from "../../../../../services/admin/topicEvent";
 
 // eslint-disable-next-line react/prop-types
 const EditEvent = ({ onClose, id }) => {
@@ -14,14 +15,14 @@ const EditEvent = ({ onClose, id }) => {
   const [topics, setTopics] = useState([]);
   const [name, setName] = useState("");
   const [hostBy, setHostBy] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(null);
   const [location, setLocation] = useState("");
   const [allowCheckin, setAllowCheckin] = useState(false);
   const [yearCode, setYearCode] = useState("");
   const [allowCertify, setAllowCertify] = useState(false);
   const [showTimeLimit, setShowTimeLimit] = useState(false);
-  const [checkinStart, setCheckinStart] = useState("");
-  const [checkinEnd, setCheckinEnd] = useState("");
+  const [checkinStart, setCheckinStart] = useState(null);
+  const [checkinEnd, setCheckinEnd] = useState(null);
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [checkinLimitTime, setCheckinLimitTime] = useState(false);
   const [error, setError] = useState("");
@@ -43,7 +44,7 @@ const EditEvent = ({ onClose, id }) => {
         if (event) {
           setName(event.name);
           setHostBy(event.hostBy);
-          setDate(event.date ? event.date.substring(0, 16) : "");
+          setDate(event.date ? new Date(event.date) : null);
           setLocation(event.location);
           setAllowCheckin(event.allowCheckin);
           setYearCode(event.yearCode);
@@ -51,11 +52,9 @@ const EditEvent = ({ onClose, id }) => {
           setCheckinLimitTime(event.checkinLimitTime);
           setShowTimeLimit(event.checkinLimitTime);
           setCheckinStart(
-            event.checkinStart ? event.checkinStart.substring(0, 16) : "",
+            event.checkinStart ? new Date(event.checkinStart) : null,
           );
-          setCheckinEnd(
-            event.checkinEnd ? event.checkinEnd.substring(0, 16) : "",
-          );
+          setCheckinEnd(event.checkinEnd ? new Date(event.checkinEnd) : null);
           setSelectedTopics(event.topics || []);
           setCefLayoutPickerId(event.templateId || ""); // Set template ID from event data
         }
@@ -78,13 +77,13 @@ const EditEvent = ({ onClose, id }) => {
       const event = {
         name: name,
         hostBy: hostBy,
-        date: date,
+        date: date ? date.toISOString() : "",
         location: location,
         allowCheckin: allowCheckin,
         yearCode: yearCode,
         allowCertify: allowCertify,
-        checkinStart: checkinStart,
-        checkinEnd: checkinEnd,
+        checkinStart: checkinStart ? checkinStart.toISOString() : "",
+        checkinEnd: checkinEnd ? checkinEnd.toISOString() : "",
         topics: selectedTopics,
         checkinLimitTime: checkinLimitTime,
         templateId: cefLayoutPickerId,
@@ -164,11 +163,12 @@ const EditEvent = ({ onClose, id }) => {
               <label className="block text-sm font-medium text-gray-700">
                 Thời gian bắt đầu
               </label>
-              <input
-                type="datetime-local"
+              <DatePicker
+                selected={date}
+                onChange={(date) => setDate(date)}
+                showTimeSelect
+                dateFormat="Pp"
                 className="w-full rounded-md border-2 p-2"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
               />
             </div>
             <div className="ml-2 w-1/2">
@@ -258,22 +258,24 @@ const EditEvent = ({ onClose, id }) => {
                 <label className="block text-sm font-medium text-gray-700">
                   Thời gian bắt đầu checkin
                 </label>
-                <input
-                  type="datetime-local"
+                <DatePicker
+                  selected={checkinStart}
+                  onChange={(date) => setCheckinStart(date)}
+                  showTimeSelect
+                  dateFormat="Pp"
                   className="w-full rounded-md border-2 p-2"
-                  value={checkinStart}
-                  onChange={(e) => setCheckinStart(e.target.value)}
                 />
               </div>
               <div className="ml-2 w-1/2">
                 <label className="block text-sm font-medium text-gray-700">
                   Thời gian kết thúc checkin
                 </label>
-                <input
-                  type="datetime-local"
+                <DatePicker
+                  selected={checkinEnd}
+                  onChange={(date) => setCheckinEnd(date)}
+                  showTimeSelect
+                  dateFormat="Pp"
                   className="w-full rounded-md border-2 p-2"
-                  value={checkinEnd}
-                  onChange={(e) => setCheckinEnd(e.target.value)}
                 />
               </div>
             </div>

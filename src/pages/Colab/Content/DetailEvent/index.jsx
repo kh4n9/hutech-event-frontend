@@ -4,18 +4,19 @@ import dayjs from "dayjs";
 import {
   getStudentEventsByEventId,
   createStudentEvent,
-} from "../../../../services/admin/studentEventService";
-import { createCertify } from "../../../../services/admin/certifyService";
+  updateStudentEvent,
+} from "../../../../services/colab/studentEventService";
+import { createCertify } from "../../../../services/colab/certifyService";
 import {
   getStudentById,
   getStudents,
-} from "../../../../services/admin/studentService";
+} from "../../../../services/colab/studentService";
 import {
   getUserByToken,
   getUserById,
-} from "../../../../services/admin/userService";
+} from "../../../../services/colab/userService";
 import { useParams } from "react-router-dom";
-import { getEventById } from "../../../../services/admin/eventService";
+import { getEventById } from "../../../../services/colab/eventService";
 
 const DetailEvent = () => {
   const [data, setData] = useState([]);
@@ -46,8 +47,8 @@ const DetailEvent = () => {
           const student = await getStudentById(studentEvent.studentId);
           const user = await getUserById(studentEvent.userId);
           return {
-            _id: studentEvent._id,
             ...student,
+            _id: studentEvent._id,
             checkIn: studentEvent.checkinTime,
             checkOut: studentEvent.checkoutTime,
             checkInBy: user.fullname,
@@ -56,6 +57,7 @@ const DetailEvent = () => {
       );
 
       setData(response);
+      console.log(response);
       setTotalCheckin(response.filter((item) => item.checkIn).length);
       setTotalCheckout(response.filter((item) => item.checkOut).length);
     };
@@ -137,6 +139,63 @@ const DetailEvent = () => {
     }
   };
 
+  const handleCheckOut = async () => {
+    try {
+      setLoading(true);
+      const students = await getStudents();
+      const student = students.find((student) => student.studentCode === mssv);
+      if (!student) {
+        setError("Sinh viên không tồn tại");
+        return;
+      }
+      const studentEvents = await getStudentEventsByEventId(id);
+      console.log(studentEvents);
+      const studentEvent = studentEvents.find(
+        (item) => item.studentId === student._id,
+      );
+      if (!studentEvent) {
+        setError("Sinh viên chưa check-in");
+        return;
+      }
+      console.log(studentEvent);
+      await updateStudentEvent(studentEvent._id, {
+        checkoutTime: dayjs().toISOString(),
+      });
+      setError("");
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveCheckOut = async (id) => {
+    try {
+      console.log(id);
+      setLoading(true);
+      await updateStudentEvent(id, {
+        checkoutTime: null,
+      });
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCheckout2 = async (id) => {
+    try {
+      setLoading(true);
+      await updateStudentEvent(id, {
+        checkoutTime: dayjs().toISOString(),
+      });
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -193,7 +252,11 @@ const DetailEvent = () => {
           className="w-full rounded-l-md p-2"
         />
         <div className="w-fit border-x-2 bg-white p-2 hover:bg-blue-200">
-          <button onClick={handleCheckIn}>Nhập</button>
+          <button
+            onClick={mode === "check-in" ? handleCheckIn : handleCheckOut}
+          >
+            Nhập
+          </button>
         </div>
         <div className="min-w-fit rounded-r-md bg-white p-2 hover:bg-blue-200">
           <button>Nhập hàng loạt</button>
@@ -309,11 +372,17 @@ const DetailEvent = () => {
                   <td className="p-2">{item.checkInBy}</td>
                   <td className="p-2">
                     {!item.checkOut ? (
-                      <button className="rounded-md bg-green-500 p-2 text-white hover:bg-green-700">
+                      <button
+                        onClick={() => handleCheckout2(item._id)}
+                        className="rounded-md bg-green-500 p-2 text-white hover:bg-green-700"
+                      >
                         Checkout
                       </button>
                     ) : (
-                      <button className="rounded-md bg-red-500 p-2 text-white hover:bg-red-700">
+                      <button
+                        onClick={() => handleRemoveCheckOut(item._id)}
+                        className="rounded-md bg-red-500 p-2 text-white hover:bg-red-700"
+                      >
                         Huỷ checkout
                       </button>
                     )}

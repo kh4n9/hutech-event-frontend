@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { getCertifyById } from "../../../../../services/admin/certifyService";
-import { getStudentById } from "../../../../../services/admin/studentService";
+import { getCertifyById } from "../../../../../services/colab/certifyService";
+import { getStudentById } from "../../../../../services/colab/studentService";
 
 // eslint-disable-next-line react/prop-types
 const EditCertificate = ({ onClose, id }) => {

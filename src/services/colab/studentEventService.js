@@ -4,7 +4,7 @@ import authHeader from "../authHeader";
 const getStudentEvents = async () => {
   try {
     const response = await axios.get(
-      "http://localhost:3000/api/admin/student-events",
+      "http://localhost:3000/api/colab/student-events",
       {
         headers: authHeader(),
       },
@@ -18,7 +18,7 @@ const getStudentEvents = async () => {
 const getStudentEventsByStudentId = async (studentId) => {
   try {
     const response = await axios.get(
-      `http://localhost:3000/api/admin/student-events/student/${studentId}`,
+      `http://localhost:3000/api/colab/student-events/student/${studentId}`,
       {
         headers: authHeader(),
       },
@@ -32,7 +32,7 @@ const getStudentEventsByStudentId = async (studentId) => {
 const getStudentEventsByEventId = async (eventId) => {
   try {
     const response = await axios.get(
-      `http://localhost:3000/api/admin/student-events/event/${eventId}`,
+      `http://localhost:3000/api/colab/student-events/event/${eventId}`,
       {
         headers: authHeader(),
       },
@@ -46,7 +46,7 @@ const getStudentEventsByEventId = async (eventId) => {
 const createStudentEvent = async (studentEvent) => {
   try {
     const response = await axios.post(
-      "http://localhost:3000/api/admin/student-events",
+      "http://localhost:3000/api/colab/student-events",
       studentEvent,
       {
         headers: authHeader(),
@@ -61,7 +61,7 @@ const createStudentEvent = async (studentEvent) => {
 const deleteStudentEvent = async (id) => {
   try {
     const response = await axios.delete(
-      `http://localhost:3000/api/admin/student-events/${id}`,
+      `http://localhost:3000/api/colab/student-events/${id}`,
       {
         headers: authHeader(),
       },
@@ -75,7 +75,7 @@ const deleteStudentEvent = async (id) => {
 const updateStudentEvent = async (id, studentEvent) => {
   try {
     const response = await axios.put(
-      `http://localhost:3000/api/admin/student-events/${id}`,
+      `http://localhost:3000/api/colab/student-events/${id}`,
       studentEvent,
       {
         headers: authHeader(),

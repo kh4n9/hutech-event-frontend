@@ -1,7 +1,7 @@
 import {
   getStudents,
   updateStudent,
-} from "../../../../services/admin/studentService";
+} from "../../../../services/colab/studentService";
 import { useState, useEffect } from "react";
 
 const MonitorList = () => {
@@ -91,7 +91,7 @@ const MonitorList = () => {
         <p className="mb-2 text-sm text-gray-500">
           Mỗi dòng là 01 (một) mã số sinh viên, bạn có thể cập nhật danh sách
           ban cán sự lớp tại đây hoặc tại menu{" "}
-          <a className="text-blue-500" href="/admin/student">
+          <a className="text-blue-500" href="/colab/student">
             Sinh Viên
           </a>
         </p>

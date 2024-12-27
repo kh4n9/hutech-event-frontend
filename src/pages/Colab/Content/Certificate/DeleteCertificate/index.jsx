@@ -1,11 +1,11 @@
 import {
   deleteCertify,
   getCertifyById,
-} from "../../../../../services/admin/certifyService";
+} from "../../../../../services/colab/certifyService";
 import {
   getStudentEventsByEventId,
   deleteStudentEvent,
-} from "../../../../../services/admin/studentEventService";
+} from "../../../../../services/colab/studentEventService";
 
 // eslint-disable-next-line react/prop-types
 const DeleteCertificate = ({ onClose, id }) => {

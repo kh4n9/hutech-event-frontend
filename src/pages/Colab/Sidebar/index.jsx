@@ -143,7 +143,7 @@ const Sidebar = () => {
             DS SV tham gia
           </Link>
           <Link
-            to="/colab/report-motitor"
+            to="/colab/report-monitor"
             className="mb-4 flex gap-2 rounded-xl bg-slate-100 p-2 shadow-sm hover:bg-blue-200"
           >
             <svg

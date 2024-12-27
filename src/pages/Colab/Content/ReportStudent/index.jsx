@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getEvents } from "../../../../services/admin/eventService";
+import { getEvents } from "../../../../services/colab/eventService";
 import DetailReportStudent from "./DetailReportStudent";
 import dayjs from "dayjs";
 
